@@ -1,20 +1,49 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# KITADETEKSI - Sistem Pendeteksi Dini & Konsultasi Psikologis
 
-# Run and deploy your AI Studio app
+KITADETEKSI adalah platform kesehatan mental terintegrasi yang menghubungkan pasien dengan dokter pengawas. Platform ini menyediakan fitur penapisan psikologis (DASS-21, PHQ-9, GAD-7) dan jurnal harian yang didukung oleh analisis sentimen berbasis AI (Groq & Gemini).
 
-This contains everything you need to run your app locally.
+## 🚀 Fitur Utama
+- **Penapisan Psikologis**: Cek kondisi mental menggunakan instrumen standar medis.
+- **Jurnal AI**: Catatan harian pasien yang diringkas dan dianalisis sentimennya secara otomatis oleh AI.
+- **Sistem Triage Darurat**: Deteksi otomatis untuk pasien dengan tingkat krisis tinggi untuk peringatan darurat ke dokter.
+- **Dashboard Dokter & Pasien**: Pemantauan hasil skrining dan tiket konsultasi.
 
-View your app in AI Studio: https://ai.studio/apps/36433b9a-b6c8-4406-b739-ae4e98e6147f
+## 🛠️ Tech Stack
+- **Frontend**: React.js, Vite, TailwindCSS
+- **Backend**: Express.js (dikonfigurasi untuk Serverless Vercel)
+- **Database**: Supabase (PostgreSQL)
+- **AI Integrations**: Groq SDK 
 
-## Run Locally
+## 💻 Cara Menjalankan Secara Lokal (Local Development)
 
-**Prerequisites:**  Node.js
+1. **Clone repository ini**
+   ```bash
+   git clone https://github.com/huseinkrna/kitadeteksi-mvp.git
+   cd kitadeteksi-mvp
+   ```
 
+2. **Install Dependensi**
+   ```bash
+   npm install
+   ```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+3. **Atur Environment Variables**
+   Buat file `.env` di *root directory* dan masukkan kunci API berikut:
+   ```env
+   SUPABASE_URL=https://[PROJECT_ID].supabase.co
+   SUPABASE_ANON_KEY=[YOUR_SUPABASE_ANON_KEY]
+   GROQ_API_KEY=[YOUR_GROQ_API_KEY]
+   ```
+
+4. **Jalankan Aplikasi**
+   ```bash
+   npm run dev
+   ```
+   Buka browser dan akses `http://localhost:3000`.
+
+## 🌐 Deployment (Vercel)
+Proyek ini sudah dikonfigurasi untuk langsung di-*deploy* ke **Vercel** menggunakan `vercel.json` dan folder `api/`.
+1. Import repository ini ke **Vercel**.
+2. Vercel akan otomatis mengenali *Framework Preset* sebagai **Vite**.
+3. Tambahkan konfigurasi dari `.env` ke bagian **Environment Variables**.
+4. Klik **Deploy**!
