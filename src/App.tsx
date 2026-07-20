@@ -9,6 +9,7 @@ import DoctorDashboard from "./components/DoctorDashboard";
 import DoctorTicketView from "./components/DoctorTicketView";
 import RedAlertModal from "./components/RedAlertModal";
 import DeveloperDashboard from "./components/DeveloperDashboard";
+import PwaPrompt from "./components/PwaPrompt";
 import { Profile } from "./types";
 
 export default function App() {
@@ -242,6 +243,9 @@ export default function App() {
         isOpen={isCritical} 
         onClose={() => setIsCritical(false)} 
       />
+      
+      {/* PWA INSTALL PROMPT */}
+      <PwaPrompt />
 
     </div>
   );
