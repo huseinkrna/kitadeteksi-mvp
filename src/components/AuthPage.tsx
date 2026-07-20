@@ -56,7 +56,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
     setShowUnverifiedScreen(false);
     setUnverifiedProfile(null);
     setIsLogin(true);
-    setPassword("password");
+    setPassword("");
     setError("");
     setSuccess("");
   };
@@ -98,7 +98,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
         setSuccess("Registrasi Berhasil! Akun pasien baru memerlukan verifikasi oleh dokter sebelum dapat login.");
         setTimeout(() => {
           setIsLogin(true);
-          setPassword("password");
+          setPassword("");
           setError("");
           setSuccess("");
         }, 2500);
