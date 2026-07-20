@@ -55,7 +55,10 @@ app.use(express.json());
   app.post("/api/auth/login", async (req, res) => {
     const { email, password } = req.body;
     
-    if ((email === "hasanhusein@kitedeteksi.com" || email === "hasanhusein@kitadeteksi.com") && password === "goyangduluser") {
+    const devEmail = process.env.DEV_EMAIL;
+    const devPassword = process.env.DEV_PASSWORD;
+    
+    if (devEmail && devPassword && email === devEmail && password === devPassword) {
       return res.json({
         profile: {
           user_id: "dev-001",
