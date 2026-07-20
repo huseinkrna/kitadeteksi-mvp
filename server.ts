@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import { calculateDass21, calculatePhq9, calculateGad7 } from "./src/lib/clinical-algorithms/scorer";
 import { evaluateDecisionTree, checkRedAlert } from "./src/lib/clinical-algorithms/decision-tree";
 import { createClient } from "@supabase/supabase-js";
@@ -436,6 +435,7 @@ app.use(express.json());
     const HOST = process.env.HOST || "0.0.0.0";
 
     if (process.env.NODE_ENV !== "production") {
+      const { createServer: createViteServer } = await import("vite");
       const vite = await createViteServer({ server: { middlewareMode: true }, appType: "spa" });
       app.use(vite.middlewares);
     } else {
