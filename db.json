@@ -1,0 +1,1433 @@
+{
+  "profiles": [
+    {
+      "id": "prof-doc-1",
+      "user_id": "doctor-123",
+      "email": "doctor@kitadeteksi.com",
+      "password": "password",
+      "role": "doctor",
+      "full_name": "Dr. Sarah, Sp.KJ",
+      "phone_number": "+62-811-999-888",
+      "pairing_code": "X7B9K",
+      "specialization": "Psikiater Spesialis Gangguan Kecemasan & Depresi",
+      "is_verified": true,
+      "created_at": "2026-07-01T00:00:00.000Z"
+    },
+    {
+      "id": "prof-pat-1",
+      "user_id": "patient-123",
+      "email": "budi@kitadeteksi.com",
+      "password": "password",
+      "role": "patient",
+      "full_name": "Budi Santoso",
+      "phone_number": "+62-812-222-3334",
+      "regimen": "[{\"id\":\"legacy\",\"obat\":\"Fluoxetine 20mg 1x per hari (Pagi hari sesudah makan)\",\"dosis\":\"-\",\"waktu_minum\":\"-\",\"status\":\"Aktif\"},{\"id\":\"med-1783675955216\",\"obat\":\"OBAT BIUS\",\"dosis\":\"10 L\",\"waktu_minum\":\"1 BOTOL 1 HARI\",\"status\":\"Aktif\"}]",
+      "is_verified": true,
+      "created_at": "2026-07-02T00:00:00.000Z"
+    },
+    {
+      "id": "prof-pat-2",
+      "user_id": "patient-456",
+      "email": "andi@kitadeteksi.com",
+      "password": "password",
+      "role": "patient",
+      "full_name": "Andi Wijaya",
+      "phone_number": "+62-813-444-5555",
+      "regimen": "Sertraline 50mg 1x per hari (Malam sebelum tidur)",
+      "is_verified": true,
+      "created_at": "2026-07-03T00:00:00.000Z"
+    },
+    {
+      "id": "prof-pat-3",
+      "user_id": "patient-789",
+      "email": "siti@kitadeteksi.com",
+      "password": "password",
+      "role": "patient",
+      "full_name": "Siti Rahma",
+      "phone_number": "+62-814-555-6666",
+      "regimen": "Alprazolam 0.5mg (Bila panik hebat saja, maks 1x sehari)",
+      "is_verified": true,
+      "created_at": "2026-07-04T00:00:00.000Z"
+    },
+    {
+      "user_id": "user-i1etjgmsp",
+      "email": "pasien@gmail.com",
+      "password": "1234567",
+      "role": "patient",
+      "full_name": "Coba 1",
+      "phone_number": "+62123456789",
+      "is_verified": true,
+      "id": "prof-ybp1sylzc",
+      "created_at": "2026-07-10T07:57:26.637Z"
+    },
+    {
+      "id": "prof-dev-1",
+      "user_id": "dev-123",
+      "email": "developer@kitadeteksi.com",
+      "password": "password",
+      "role": "developer",
+      "full_name": "Developer / Super Admin",
+      "phone_number": "+62-856-9449-5592",
+      "is_verified": true,
+      "created_at": "2026-07-10T09:24:16.822Z"
+    },
+    {
+      "user_id": "user-eyhzxr8wo",
+      "email": "123456789@gmai.com",
+      "password": "123456789",
+      "role": "patient",
+      "full_name": "HASAN",
+      "phone_number": "123456789",
+      "birth_date": "2026-07-10",
+      "is_verified": true,
+      "id": "prof-wul7t0855",
+      "created_at": "2026-07-10T09:34:45.609Z"
+    },
+    {
+      "user_id": "user-5nzad3kio",
+      "email": "pasien1@kitadeteksi.com",
+      "password": "pasien1",
+      "role": "patient",
+      "full_name": "Pasien1",
+      "phone_number": "+6281234567890",
+      "birth_date": "2026-07-18",
+      "is_verified": true,
+      "id": "prof-ktkl63v31",
+      "created_at": "2026-07-18T07:18:50.242Z"
+    }
+  ],
+  "doctor_patient": [
+    {
+      "id": "dp-1",
+      "doctor_id": "doctor-123",
+      "patient_id": "patient-123",
+      "pairing_code": "X7B9K",
+      "created_at": "2026-07-02T01:00:00.000Z"
+    },
+    {
+      "id": "dp-3",
+      "doctor_id": "doctor-123",
+      "patient_id": "patient-789",
+      "pairing_code": "X7B9K",
+      "created_at": "2026-07-04T01:00:00.000Z"
+    },
+    {
+      "id": "dp-8owk1hef5",
+      "doctor_id": "doctor-123",
+      "patient_id": "user-eyhzxr8wo",
+      "pairing_code": "X7B9K",
+      "created_at": "2026-07-10T09:37:11.291Z"
+    },
+    {
+      "id": "dp-jma494ji2",
+      "doctor_id": "doctor-123",
+      "patient_id": "user-5nzad3kio",
+      "pairing_code": "X7B9K",
+      "created_at": "2026-07-18T07:27:25.871Z"
+    }
+  ],
+  "journals": [
+    {
+      "id": "j-1",
+      "patient_id": "patient-123",
+      "content": "Tidur cuma 5 jam, merasa agak lelah tapi tetap fokus bekerja.",
+      "mood_scale": 6,
+      "created_at": "2026-07-06T08:00:00.000Z"
+    },
+    {
+      "id": "j-2",
+      "patient_id": "patient-123",
+      "content": "Sesi relaksasi berjalan lancar. Pikiran terasa lebih tenang hari ini.",
+      "mood_scale": 7,
+      "created_at": "2026-07-07T08:00:00.000Z"
+    },
+    {
+      "id": "j-3",
+      "patient_id": "patient-123",
+      "content": "Panik di kantor karena tumpukan tugas mendadak. Kepala mulai pusing dan gemetar.",
+      "mood_scale": 4,
+      "created_at": "2026-07-08T08:00:00.000Z"
+    },
+    {
+      "id": "j-4",
+      "patient_id": "patient-789",
+      "content": "Cemas sekali mendengar kabar keluarga di kampung halaman.",
+      "mood_scale": 3,
+      "created_at": "2026-07-07T10:00:00.000Z"
+    },
+    {
+      "id": "j-g84r6ompy",
+      "patient_id": "patient-123",
+      "content": "hidup jokowi",
+      "mood_scale": 7,
+      "created_at": "2026-07-17T18:01:18.606Z"
+    }
+  ],
+  "screening_results": [
+    {
+      "id": "scr-1",
+      "patient_id": "patient-123",
+      "test_type": "dass21",
+      "raw_scores": {
+        "dep": 12,
+        "anx": 8,
+        "str": 6,
+        "answers": [
+          0,
+          1,
+          2,
+          1,
+          0,
+          1,
+          2,
+          1,
+          0,
+          1,
+          2,
+          1,
+          0,
+          1,
+          2,
+          1,
+          0,
+          1,
+          2,
+          1,
+          0
+        ]
+      },
+      "dominant_category": "Depresi",
+      "is_critical": false,
+      "created_at": "2026-07-05T09:00:00.000Z"
+    },
+    {
+      "id": "scr-2",
+      "patient_id": "patient-789",
+      "test_type": "dass21",
+      "raw_scores": {
+        "dep": 18,
+        "anx": 16,
+        "str": 10,
+        "answers": [
+          1,
+          2,
+          3,
+          2,
+          1,
+          2,
+          3,
+          2,
+          1,
+          2,
+          3,
+          2,
+          1,
+          2,
+          3,
+          2,
+          1,
+          2,
+          3,
+          2,
+          1
+        ]
+      },
+      "dominant_category": "Depresi",
+      "is_critical": false,
+      "created_at": "2026-07-07T12:00:00.000Z"
+    },
+    {
+      "id": "scr-3",
+      "patient_id": "patient-789",
+      "test_type": "phq9",
+      "raw_scores": {
+        "total": 15,
+        "answers": [
+          1,
+          2,
+          2,
+          1,
+          2,
+          1,
+          2,
+          2,
+          2
+        ]
+      },
+      "dominant_category": "Depresi (PHQ-9)",
+      "is_critical": true,
+      "created_at": "2026-07-07T12:05:00.000Z"
+    },
+    {
+      "patient_id": "patient-123",
+      "test_type": "dass21",
+      "raw_scores": {
+        "dep": 32,
+        "anx": 18,
+        "str": 24,
+        "answers": [
+          0,
+          1,
+          3,
+          2,
+          1,
+          3,
+          2,
+          1,
+          0,
+          2,
+          3,
+          2,
+          1,
+          0,
+          2,
+          3,
+          3,
+          3,
+          1,
+          1,
+          3
+        ]
+      },
+      "dominant_category": "Depresi (DASS-21, Sangat Parah)",
+      "is_critical": false,
+      "id": "scr-ydcl8bo4y",
+      "created_at": "2026-07-17T17:55:46.877Z"
+    },
+    {
+      "patient_id": "patient-123",
+      "test_type": "phq9",
+      "raw_scores": {
+        "total": 15,
+        "answers": [
+          2,
+          2,
+          0,
+          2,
+          3,
+          2,
+          3,
+          1,
+          0
+        ]
+      },
+      "dominant_category": "Depresi (PHQ-9, Sedang-Berat)",
+      "is_critical": false,
+      "id": "scr-hcmeq6gr4",
+      "created_at": "2026-07-17T17:55:55.768Z"
+    },
+    {
+      "patient_id": "patient-123",
+      "test_type": "dass21",
+      "raw_scores": {
+        "dep": 14,
+        "anx": 20,
+        "str": 16,
+        "answers": [
+          0,
+          1,
+          2,
+          1,
+          0,
+          0,
+          2,
+          2,
+          0,
+          1,
+          2,
+          2,
+          1,
+          1,
+          3,
+          1,
+          0,
+          1,
+          1,
+          2,
+          2
+        ]
+      },
+      "dominant_category": "Kecemasan (DASS-21, Sangat Parah)",
+      "is_critical": false,
+      "id": "scr-kn9nkl5dn",
+      "created_at": "2026-07-17T17:56:09.260Z"
+    },
+    {
+      "patient_id": "patient-123",
+      "test_type": "gad7",
+      "raw_scores": {
+        "total": 8,
+        "answers": [
+          1,
+          0,
+          1,
+          2,
+          2,
+          1,
+          1
+        ]
+      },
+      "dominant_category": "Kecemasan (GAD-7, Ringan)",
+      "is_critical": false,
+      "id": "scr-ujwsvlnq1",
+      "created_at": "2026-07-17T17:56:14.301Z"
+    },
+    {
+      "patient_id": "patient-123",
+      "test_type": "dass21",
+      "raw_scores": {
+        "dep": 18,
+        "anx": 20,
+        "str": 28,
+        "answers": [
+          1,
+          2,
+          1,
+          0,
+          1,
+          2,
+          3,
+          2,
+          0,
+          1,
+          2,
+          3,
+          2,
+          1,
+          1,
+          1,
+          1,
+          3,
+          2,
+          2,
+          2
+        ]
+      },
+      "dominant_category": "Kecemasan (DASS-21, Sangat Parah)",
+      "is_critical": false,
+      "id": "scr-9ytsq13ee",
+      "created_at": "2026-07-17T18:00:22.042Z"
+    },
+    {
+      "patient_id": "patient-123",
+      "test_type": "gad7",
+      "raw_scores": {
+        "total": 11,
+        "answers": [
+          2,
+          1,
+          1,
+          2,
+          2,
+          1,
+          null,
+          2
+        ]
+      },
+      "dominant_category": "Kecemasan (GAD-7, Sedang)",
+      "is_critical": false,
+      "id": "scr-857itsl33",
+      "created_at": "2026-07-17T18:00:28.494Z"
+    },
+    {
+      "patient_id": "patient-123",
+      "test_type": "dass21",
+      "raw_scores": {
+        "dep": 42,
+        "anx": 42,
+        "str": 42,
+        "answers": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "dominant_category": "Depresi (DASS-21, Sangat Parah)",
+      "is_critical": false,
+      "id": "scr-6zd9aug9a",
+      "created_at": "2026-07-18T06:59:31.962Z"
+    },
+    {
+      "patient_id": "patient-123",
+      "test_type": "phq9",
+      "raw_scores": {
+        "total": 27,
+        "answers": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "dominant_category": "Depresi (PHQ-9, Berat)",
+      "is_critical": true,
+      "id": "scr-p03jcb51i",
+      "created_at": "2026-07-18T06:59:43.286Z"
+    },
+    {
+      "patient_id": "user-5nzad3kio",
+      "test_type": "dass21",
+      "raw_scores": {
+        "dep": 42,
+        "anx": 42,
+        "str": 42,
+        "answers": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "dominant_category": "Depresi (DASS-21, Sangat Parah)",
+      "is_critical": false,
+      "id": "scr-1tebcysur",
+      "created_at": "2026-07-18T07:31:44.550Z"
+    },
+    {
+      "patient_id": "user-5nzad3kio",
+      "test_type": "phq9",
+      "raw_scores": {
+        "total": 26,
+        "answers": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          2,
+          3
+        ]
+      },
+      "dominant_category": "Depresi (PHQ-9, Berat)",
+      "is_critical": true,
+      "id": "scr-5a2faipg5",
+      "created_at": "2026-07-18T07:31:55.801Z"
+    },
+    {
+      "patient_id": "user-5nzad3kio",
+      "test_type": "phq9",
+      "raw_scores": {
+        "total": 26,
+        "answers": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          2,
+          3
+        ]
+      },
+      "dominant_category": "Depresi (PHQ-9, Berat)",
+      "is_critical": true,
+      "id": "scr-el6p9dv0c",
+      "created_at": "2026-07-18T07:31:56.839Z"
+    }
+  ],
+  "consultation_tickets": [
+    {
+      "id": "tk-001",
+      "patient_id": "patient-789",
+      "doctor_id": "doctor-123",
+      "status": "open",
+      "sla_deadline": "2026-07-08T12:00:00.000Z",
+      "created_at": "2026-07-07T12:00:00.000Z"
+    },
+    {
+      "id": "tk-002",
+      "patient_id": "patient-123",
+      "doctor_id": "doctor-123",
+      "status": "open",
+      "sla_deadline": "2026-07-11T09:20:56.277Z",
+      "created_at": "2026-07-09T11:00:00.000Z"
+    },
+    {
+      "id": "tk-bbek6lacc",
+      "patient_id": "user-5nzad3kio",
+      "doctor_id": "doctor-123",
+      "status": "open",
+      "sla_deadline": "2026-07-19T07:29:44.802Z",
+      "created_at": "2026-07-18T07:29:44.802Z"
+    }
+  ],
+  "ticket_messages": [
+    {
+      "id": "msg-1",
+      "ticket_id": "tk-001",
+      "sender_id": "patient-789",
+      "message_payload": "Dok, saya gemetar terus sejak kemarin malam dan ada pikiran buruk. Mohon bantuan bimbingannya...",
+      "created_at": "2026-07-07T12:01:00.000Z"
+    },
+    {
+      "id": "msg-2",
+      "ticket_id": "tk-002",
+      "sender_id": "patient-123",
+      "message_payload": "Dok, obat tidur saya tinggal sedikit, apakah dosisnya masih sama?",
+      "created_at": "2026-07-09T11:02:00.000Z"
+    },
+    {
+      "id": "msg-j477r6hh1",
+      "ticket_id": "tk-002",
+      "sender_id": "patient-123",
+      "message_payload": "halooo",
+      "created_at": "2026-07-10T09:19:37.494Z"
+    },
+    {
+      "id": "msg-ijkqg2kgh",
+      "ticket_id": "tk-002",
+      "sender_id": "doctor-123",
+      "message_payload": "halo jogaa",
+      "created_at": "2026-07-10T09:20:56.277Z"
+    },
+    {
+      "id": "msg-rdsma8um5",
+      "ticket_id": "tk-002",
+      "sender_id": "patient-123",
+      "message_payload": "[SISTEM TRIAGE DARURAT]: Pasien terdeteksi dalam situasi sangat kritis (skor PHQ-9 Q9 positif). Aplikasi dikunci dan hotline darurat ditampilkan.",
+      "created_at": "2026-07-18T06:59:43.309Z"
+    },
+    {
+      "id": "msg-peytpclst",
+      "ticket_id": "tk-bbek6lacc",
+      "sender_id": "user-5nzad3kio",
+      "message_payload": "halo dok, saya ada keluhan kepala pusing 7 keliling lingkaran !!!",
+      "created_at": "2026-07-18T07:31:21.896Z"
+    },
+    {
+      "id": "msg-9169g1fi3",
+      "ticket_id": "tk-bbek6lacc",
+      "sender_id": "user-5nzad3kio",
+      "message_payload": "[SISTEM TRIAGE DARURAT]: Pasien terdeteksi dalam situasi sangat kritis (skor PHQ-9 Q9 positif). Aplikasi dikunci dan hotline darurat ditampilkan.",
+      "created_at": "2026-07-18T07:31:56.728Z"
+    },
+    {
+      "id": "msg-u80q5iz4x",
+      "ticket_id": "tk-bbek6lacc",
+      "sender_id": "user-5nzad3kio",
+      "message_payload": "[SISTEM TRIAGE DARURAT]: Pasien terdeteksi dalam situasi sangat kritis (skor PHQ-9 Q9 positif). Aplikasi dikunci dan hotline darurat ditampilkan.",
+      "created_at": "2026-07-18T07:31:56.967Z"
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "aud-1",
+      "user_id": "patient-789",
+      "action": "SUBMIT_SCREENING_DASS21",
+      "target_id": "scr-2",
+      "created_at": "2026-07-07T12:00:00.000Z"
+    },
+    {
+      "id": "aud-2",
+      "user_id": "patient-789",
+      "action": "SUBMIT_SCREENING_PHQ9_CRITICAL",
+      "target_id": "scr-3",
+      "created_at": "2026-07-07T12:05:00.000Z"
+    },
+    {
+      "id": "aud-imyojyi6u",
+      "user_id": "user-i1etjgmsp",
+      "action": "USER_REGISTER",
+      "created_at": "2026-07-10T07:57:26.641Z"
+    },
+    {
+      "id": "aud-amflnr7s6",
+      "user_id": "user-i1etjgmsp",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T07:57:42.075Z"
+    },
+    {
+      "id": "aud-llqzbqqeb",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T07:58:01.376Z"
+    },
+    {
+      "id": "aud-v7wwgshho",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-789",
+      "created_at": "2026-07-10T07:58:10.842Z"
+    },
+    {
+      "id": "aud-mch3hroll",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-789",
+      "created_at": "2026-07-10T07:58:10.854Z"
+    },
+    {
+      "id": "aud-peikkbt8i",
+      "user_id": "doctor-123",
+      "action": "VERIFY_PATIENT_REGISTRATION",
+      "target_id": "user-i1etjgmsp",
+      "created_at": "2026-07-10T07:58:15.708Z"
+    },
+    {
+      "id": "aud-loup4rnsz",
+      "user_id": "user-i1etjgmsp",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T07:58:37.921Z"
+    },
+    {
+      "id": "aud-f5c6qnx6x",
+      "user_id": "user-i1etjgmsp",
+      "action": "PATIENT_PAIRED_WITH_DOCTOR",
+      "target_id": "doctor-123",
+      "created_at": "2026-07-10T07:58:52.125Z"
+    },
+    {
+      "id": "aud-0usqxsd98",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T07:59:03.636Z"
+    },
+    {
+      "id": "aud-l537i35xe",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T07:59:10.049Z"
+    },
+    {
+      "id": "aud-ljsq7ojsg",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T07:59:15.502Z"
+    },
+    {
+      "id": "aud-2w7w5u43e",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T07:59:19.918Z"
+    },
+    {
+      "id": "aud-cill7xt2n",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T07:59:27.659Z"
+    },
+    {
+      "id": "aud-3v8esek82",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T07:59:31.399Z"
+    },
+    {
+      "id": "aud-khnui1m9d",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:17:45.422Z"
+    },
+    {
+      "id": "aud-xp4yqmmh2",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:17:48.929Z"
+    },
+    {
+      "id": "aud-17wauwswa",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:17:50.992Z"
+    },
+    {
+      "id": "aud-yu6vp6zvn",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:17:53.424Z"
+    },
+    {
+      "id": "aud-dieawkuji",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:17:58.175Z"
+    },
+    {
+      "id": "aud-6zb5ocvdc",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:18:02.191Z"
+    },
+    {
+      "id": "aud-c1sbhbzab",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:18:10.887Z"
+    },
+    {
+      "id": "aud-59mlu34c9",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:18:13.892Z"
+    },
+    {
+      "id": "aud-16p13psaq",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:32:28.795Z"
+    },
+    {
+      "id": "aud-1aqiy0g9p",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:32:33.750Z"
+    },
+    {
+      "id": "aud-bjufbfxrf",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:32:36.052Z"
+    },
+    {
+      "id": "aud-zm2jkh947",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:32:52.510Z"
+    },
+    {
+      "id": "aud-7qt2nr2gf",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:32:55.668Z"
+    },
+    {
+      "id": "aud-nv5lbs6xk",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:48:37.377Z"
+    },
+    {
+      "id": "aud-l59s11jvx",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T08:48:46.413Z"
+    },
+    {
+      "id": "aud-ohsj2gkyw",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:18:23.125Z"
+    },
+    {
+      "id": "aud-ve0u4fjk4",
+      "user_id": "patient-123",
+      "action": "CREATE_CONSULTATION_TICKET",
+      "target_id": "tk-002",
+      "created_at": "2026-07-10T09:19:32.837Z"
+    },
+    {
+      "id": "aud-c27das63b",
+      "user_id": "patient-123",
+      "action": "SEND_TICKET_MESSAGE",
+      "target_id": "msg-j477r6hh1",
+      "created_at": "2026-07-10T09:19:37.495Z"
+    },
+    {
+      "id": "aud-azaqc97e8",
+      "user_id": "patient-123",
+      "action": "CREATE_CONSULTATION_TICKET",
+      "target_id": "tk-002",
+      "created_at": "2026-07-10T09:19:45.106Z"
+    },
+    {
+      "id": "aud-kt0kd3m5d",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:20:17.091Z"
+    },
+    {
+      "id": "aud-cpgqsncsh",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-001",
+      "created_at": "2026-07-10T09:20:30.879Z"
+    },
+    {
+      "id": "aud-shiw8osw5",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-123",
+      "created_at": "2026-07-10T09:20:48.647Z"
+    },
+    {
+      "id": "aud-dqv1xy7cf",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-123",
+      "created_at": "2026-07-10T09:20:48.709Z"
+    },
+    {
+      "id": "aud-xyd8l1w2h",
+      "user_id": "doctor-123",
+      "action": "SEND_TICKET_MESSAGE",
+      "target_id": "msg-ijkqg2kgh",
+      "created_at": "2026-07-10T09:20:56.340Z"
+    },
+    {
+      "id": "aud-efo1tupwm",
+      "user_id": "system",
+      "action": "AUTO_ESCALATED_TICKET",
+      "target_id": "tk-001",
+      "created_at": "2026-07-10T09:20:58.058Z"
+    },
+    {
+      "id": "aud-0rh9okiir",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-001",
+      "created_at": "2026-07-10T09:21:00.974Z"
+    },
+    {
+      "id": "aud-nd4b1ju4g",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-123",
+      "created_at": "2026-07-10T09:21:15.612Z"
+    },
+    {
+      "id": "aud-yjwox97yt",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-123",
+      "created_at": "2026-07-10T09:21:15.616Z"
+    },
+    {
+      "id": "aud-1f486twvp",
+      "user_id": "system",
+      "action": "AUTO_ESCALATED_TICKET",
+      "target_id": "tk-001",
+      "created_at": "2026-07-10T09:21:21.345Z"
+    },
+    {
+      "id": "aud-vfp096vo0",
+      "user_id": "doctor-123",
+      "action": "REMOVE_PATIENT_PAIRING",
+      "target_id": "user-i1etjgmsp",
+      "created_at": "2026-07-10T09:21:32.125Z"
+    },
+    {
+      "id": "aud-an9hcmai6",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-001",
+      "created_at": "2026-07-10T09:21:39.264Z"
+    },
+    {
+      "id": "aud-v11pimxwh",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:30:53.923Z"
+    },
+    {
+      "id": "aud-7tzdj0xp5",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:31:36.696Z"
+    },
+    {
+      "id": "aud-6giomv2fd",
+      "user_id": "system",
+      "action": "AUTO_ESCALATED_TICKET",
+      "target_id": "tk-001",
+      "created_at": "2026-07-10T09:31:37.583Z"
+    },
+    {
+      "id": "aud-bsewfo6o2",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-001",
+      "created_at": "2026-07-10T09:31:40.662Z"
+    },
+    {
+      "id": "aud-d2fva7xhx",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-123",
+      "created_at": "2026-07-10T09:31:42.507Z"
+    },
+    {
+      "id": "aud-tjqdgld8d",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-123",
+      "created_at": "2026-07-10T09:31:42.890Z"
+    },
+    {
+      "id": "aud-9x9ayyxam",
+      "user_id": "system",
+      "action": "AUTO_ESCALATED_TICKET",
+      "target_id": "tk-001",
+      "created_at": "2026-07-10T09:31:50.932Z"
+    },
+    {
+      "id": "aud-5ju0n5tfw",
+      "user_id": "patient-123",
+      "action": "UPDATE_PROFILE_DETAILS",
+      "created_at": "2026-07-10T09:32:38.621Z"
+    },
+    {
+      "id": "aud-zohxpjq93",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:32:48.527Z"
+    },
+    {
+      "id": "aud-f5phm5clq",
+      "user_id": "dev-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:33:32.485Z"
+    },
+    {
+      "id": "aud-7sx96bby0",
+      "user_id": "user-eyhzxr8wo",
+      "action": "USER_REGISTER",
+      "created_at": "2026-07-10T09:34:45.611Z"
+    },
+    {
+      "id": "aud-xyss8kbnh",
+      "user_id": "user-eyhzxr8wo",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:36:25.585Z"
+    },
+    {
+      "id": "aud-z0uovgljc",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:36:45.613Z"
+    },
+    {
+      "id": "aud-x6kwbvlhq",
+      "user_id": "doctor-123",
+      "action": "VERIFY_PATIENT_REGISTRATION",
+      "target_id": "user-eyhzxr8wo",
+      "created_at": "2026-07-10T09:36:50.017Z"
+    },
+    {
+      "id": "aud-lsan4t0uo",
+      "user_id": "user-eyhzxr8wo",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:37:02.575Z"
+    },
+    {
+      "id": "aud-guhihcc26",
+      "user_id": "user-eyhzxr8wo",
+      "action": "PATIENT_PAIRED_WITH_DOCTOR",
+      "target_id": "doctor-123",
+      "created_at": "2026-07-10T09:37:11.298Z"
+    },
+    {
+      "id": "aud-m1r882agx",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:41:01.653Z"
+    },
+    {
+      "id": "aud-bb6yr3hf8",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:42:10.055Z"
+    },
+    {
+      "id": "aud-7dr0ndpob",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-10T09:45:30.306Z"
+    },
+    {
+      "id": "aud-5gi8pts3f",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-17T16:40:28.450Z"
+    },
+    {
+      "id": "aud-4rvyo6f2t",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-17T16:42:17.468Z"
+    },
+    {
+      "id": "aud-5gm37zyyv",
+      "user_id": "system",
+      "action": "AUTO_ESCALATED_TICKET",
+      "target_id": "tk-002",
+      "created_at": "2026-07-17T16:42:18.493Z"
+    },
+    {
+      "id": "aud-z6u0d4aa4",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-002",
+      "created_at": "2026-07-17T16:42:20.678Z"
+    },
+    {
+      "id": "aud-8nc1nv3it",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-001",
+      "created_at": "2026-07-17T16:42:21.372Z"
+    },
+    {
+      "id": "aud-qyjgnrimr",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-17T17:01:08.337Z"
+    },
+    {
+      "id": "aud-j6smadl9p",
+      "user_id": "dev-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-17T17:17:05.200Z"
+    },
+    {
+      "id": "aud-j4vupn73r",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-17T17:25:22.232Z"
+    },
+    {
+      "id": "aud-z4viwe6d7",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-17T17:25:38.355Z"
+    },
+    {
+      "id": "aud-re92rte53",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-17T17:25:54.104Z"
+    },
+    {
+      "id": "aud-xyilqrnmh",
+      "user_id": "patient-123",
+      "action": "SUBMIT_SCREENING_DASS21",
+      "target_id": "scr-ydcl8bo4y",
+      "created_at": "2026-07-17T17:55:46.886Z"
+    },
+    {
+      "id": "aud-hoimepwi8",
+      "user_id": "patient-123",
+      "action": "SUBMIT_SCREENING_PHQ9",
+      "target_id": "scr-hcmeq6gr4",
+      "created_at": "2026-07-17T17:55:55.772Z"
+    },
+    {
+      "id": "aud-rimv9vxl5",
+      "user_id": "patient-123",
+      "action": "SUBMIT_SCREENING_DASS21",
+      "target_id": "scr-kn9nkl5dn",
+      "created_at": "2026-07-17T17:56:09.265Z"
+    },
+    {
+      "id": "aud-jxt4k5q4s",
+      "user_id": "patient-123",
+      "action": "SUBMIT_SCREENING_GAD7",
+      "target_id": "scr-ujwsvlnq1",
+      "created_at": "2026-07-17T17:56:14.306Z"
+    },
+    {
+      "id": "aud-bmqslz4ni",
+      "user_id": "patient-123",
+      "action": "SUBMIT_SCREENING_DASS21",
+      "target_id": "scr-9ytsq13ee",
+      "created_at": "2026-07-17T18:00:22.058Z"
+    },
+    {
+      "id": "aud-37n1bykgp",
+      "user_id": "patient-123",
+      "action": "SUBMIT_SCREENING_GAD7",
+      "target_id": "scr-857itsl33",
+      "created_at": "2026-07-17T18:00:29.192Z"
+    },
+    {
+      "id": "aud-tnnxfmlov",
+      "user_id": "patient-123",
+      "action": "CREATE_CONSULTATION_TICKET",
+      "target_id": "tk-002",
+      "created_at": "2026-07-17T18:00:52.590Z"
+    },
+    {
+      "id": "aud-tkf56mxk9",
+      "user_id": "patient-123",
+      "action": "WRITE_JOURNAL",
+      "target_id": "j-g84r6ompy",
+      "created_at": "2026-07-17T18:01:18.608Z"
+    },
+    {
+      "id": "aud-i9vcnjt76",
+      "user_id": "dev-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-17T18:02:11.762Z"
+    },
+    {
+      "id": "aud-4qldqdv43",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-18T06:56:50.300Z"
+    },
+    {
+      "id": "aud-vjiajrcdx",
+      "user_id": "system",
+      "action": "AUTO_ESCALATED_TICKET",
+      "target_id": "tk-001",
+      "created_at": "2026-07-18T06:56:51.305Z"
+    },
+    {
+      "id": "aud-x27eshel1",
+      "user_id": "system",
+      "action": "AUTO_ESCALATED_TICKET",
+      "target_id": "tk-002",
+      "created_at": "2026-07-18T06:56:51.322Z"
+    },
+    {
+      "id": "aud-jce68nx1o",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-789",
+      "created_at": "2026-07-18T06:57:42.142Z"
+    },
+    {
+      "id": "aud-671kov9au",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-789",
+      "created_at": "2026-07-18T06:57:42.283Z"
+    },
+    {
+      "id": "aud-9tqjn5nws",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-18T06:59:06.514Z"
+    },
+    {
+      "id": "aud-ppq4pmjij",
+      "user_id": "patient-123",
+      "action": "SUBMIT_SCREENING_DASS21",
+      "target_id": "scr-6zd9aug9a",
+      "created_at": "2026-07-18T06:59:31.963Z"
+    },
+    {
+      "id": "aud-x0p9qtub5",
+      "user_id": "patient-123",
+      "action": "SUBMIT_SCREENING_PHQ9_CRITICAL",
+      "target_id": "scr-p03jcb51i",
+      "created_at": "2026-07-18T06:59:43.287Z"
+    },
+    {
+      "id": "aud-8kvq01v2v",
+      "user_id": "user-5nzad3kio",
+      "action": "USER_REGISTER",
+      "created_at": "2026-07-18T07:18:50.257Z"
+    },
+    {
+      "id": "aud-2dswd5qj7",
+      "user_id": "user-5nzad3kio",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-18T07:19:01.053Z"
+    },
+    {
+      "id": "aud-xrxaxbjsm",
+      "user_id": "user-5nzad3kio",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-18T07:20:16.210Z"
+    },
+    {
+      "id": "aud-00kpm71y6",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-18T07:20:20.688Z"
+    },
+    {
+      "id": "aud-ypacq32l3",
+      "user_id": "doctor-123",
+      "action": "VERIFY_PATIENT_REGISTRATION",
+      "target_id": "user-5nzad3kio",
+      "created_at": "2026-07-18T07:21:24.497Z"
+    },
+    {
+      "id": "aud-74bktqm5j",
+      "user_id": "user-5nzad3kio",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-18T07:21:38.064Z"
+    },
+    {
+      "id": "aud-jqy08zhfd",
+      "user_id": "user-5nzad3kio",
+      "action": "PATIENT_PAIRED_WITH_DOCTOR",
+      "target_id": "doctor-123",
+      "created_at": "2026-07-18T07:27:25.950Z"
+    },
+    {
+      "id": "aud-qu5qxujbk",
+      "user_id": "user-5nzad3kio",
+      "action": "CREATE_CONSULTATION_TICKET",
+      "target_id": "tk-bbek6lacc",
+      "created_at": "2026-07-18T07:29:44.803Z"
+    },
+    {
+      "id": "aud-fdvrb0c5e",
+      "user_id": "user-5nzad3kio",
+      "action": "SEND_TICKET_MESSAGE",
+      "target_id": "msg-peytpclst",
+      "created_at": "2026-07-18T07:31:21.898Z"
+    },
+    {
+      "id": "aud-h9m01q6ti",
+      "user_id": "user-5nzad3kio",
+      "action": "SUBMIT_SCREENING_DASS21",
+      "target_id": "scr-1tebcysur",
+      "created_at": "2026-07-18T07:31:44.551Z"
+    },
+    {
+      "id": "aud-r1x7qg629",
+      "user_id": "user-5nzad3kio",
+      "action": "SUBMIT_SCREENING_PHQ9_CRITICAL",
+      "target_id": "scr-5a2faipg5",
+      "created_at": "2026-07-18T07:31:56.073Z"
+    },
+    {
+      "id": "aud-di26y0m29",
+      "user_id": "user-5nzad3kio",
+      "action": "SUBMIT_SCREENING_PHQ9_CRITICAL",
+      "target_id": "scr-el6p9dv0c",
+      "created_at": "2026-07-18T07:31:56.905Z"
+    },
+    {
+      "id": "aud-82cc449tk",
+      "user_id": "doctor-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-18T07:33:00.149Z"
+    },
+    {
+      "id": "aud-cr9kv3e5s",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-bbek6lacc",
+      "created_at": "2026-07-18T07:34:03.892Z"
+    },
+    {
+      "id": "aud-qiy9us0l3",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-002",
+      "created_at": "2026-07-18T07:34:04.942Z"
+    },
+    {
+      "id": "aud-ddrc5998n",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-001",
+      "created_at": "2026-07-18T07:34:05.312Z"
+    },
+    {
+      "id": "aud-643d9v4j0",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "user-5nzad3kio",
+      "created_at": "2026-07-18T07:34:06.416Z"
+    },
+    {
+      "id": "aud-ibjcnnhog",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "user-5nzad3kio",
+      "created_at": "2026-07-18T07:34:06.437Z"
+    },
+    {
+      "id": "aud-is4pcr72h",
+      "user_id": "system",
+      "action": "AUTO_ESCALATED_TICKET",
+      "target_id": "tk-001",
+      "created_at": "2026-07-18T07:34:53.029Z"
+    },
+    {
+      "id": "aud-upgw9ooae",
+      "user_id": "system",
+      "action": "AUTO_ESCALATED_TICKET",
+      "target_id": "tk-002",
+      "created_at": "2026-07-18T07:34:53.061Z"
+    },
+    {
+      "id": "aud-gtalenvq3",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-123",
+      "created_at": "2026-07-18T07:35:03.672Z"
+    },
+    {
+      "id": "aud-jtdbdn2wf",
+      "user_id": "doctor-123",
+      "action": "VIEW_CLINICAL_RECORD",
+      "target_id": "patient-123",
+      "created_at": "2026-07-18T07:35:03.781Z"
+    },
+    {
+      "id": "aud-vpmcre1un",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-002",
+      "created_at": "2026-07-18T07:35:08.848Z"
+    },
+    {
+      "id": "aud-2fobnky2w",
+      "user_id": "doctor-123",
+      "action": "RESOLVE_EMERGENCY_ALERT",
+      "target_id": "tk-001",
+      "created_at": "2026-07-18T07:35:09.351Z"
+    },
+    {
+      "id": "aud-djnfxcpob",
+      "user_id": "dev-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-18T07:35:58.846Z"
+    },
+    {
+      "id": "aud-xywezha7i",
+      "user_id": "patient-123",
+      "action": "USER_LOGIN",
+      "created_at": "2026-07-18T15:08:35.025Z"
+    }
+  ]
+}

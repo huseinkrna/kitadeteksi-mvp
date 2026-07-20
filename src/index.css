@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "Space Mono", monospace;
+
+  --color-deepspace: #F8FAFC;       /* Light Slate background */
+  --color-nebula: #2563EB;          /* Primary Blue-600 */
+  --color-star: #0F172A;            /* Dark Slate-900 for solid minimal buttons */
+  --color-surface-base: #F8FAFC;    /* Base main bg */
+  --color-surface-card: #FFFFFF;    /* Pure White cards */
+  --color-surface-sunken: #F1F5F9;  /* Soft light slate panel */
+  --color-surface-overlay: #E2E8F0; /* Soft slate border hover */
+
+  /* Invert tailwind grays to map dark-theme colors cleanly to minimalist light slate style */
+  --color-gray-50: #0F172A;
+  --color-gray-100: #0F172A;
+  --color-gray-200: #1E293B;
+  --color-gray-300: #334155;
+  --color-gray-400: #475569;
+  --color-gray-500: #64748B;
+  --color-gray-600: #94A3B8;
+  --color-gray-700: #CBD5E1;
+  --color-gray-800: #E2E8F0;
+  --color-gray-900: #F1F5F9;
+}
+
+/* Base Body Style */
+body {
+  background-color: #F8FAFC !important;
+  color: #1E293B !important;
+}
+
+/* Force Light Theme Colors globally inside main dashboard */
+#patient-dashboard, #doctor-dashboard, #patient-ticket-view, #doctor-ticket-split-screen {
+  background-color: #F8FAFC !important;
+  color: #334155 !important;
+}
+
+/* Card Overrides */
+.bg-surface-card, section {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+  color: #1E293B !important;
+}
+
+/* White border opacity fix for clean minimalism */
+.border-white\/5, .border-white\/10, .border-white\/20, .border-white\/30, .border-white\/40 {
+  border-color: #E2E8F0 !important;
+}
+
+/* Header/Navbar Override */
+header {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  color: #0F172A !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+header span, header h1, header h2, header h3 {
+  color: #0F172A !important;
+}
+
+header .text-gray-400, header .text-gray-500 {
+  color: #64748B !important;
+}
+
+/* Sidebar Dark Slate Clean Styling (Preserving the premium dark contrast of the sidebar from Design HTML) */
+aside, #dashboard-sidebar {
+  background-color: #0F172A !important;
+  border-right: 1px solid #1E293B !important;
+}
+
+aside span, aside h3, aside p, aside a, aside button {
+  color: #94A3B8 !important;
+}
+
+aside h3, aside .text-gray-100 {
+  color: #FFFFFF !important;
+}
+
+aside .text-[10px], aside .text-gray-500 {
+  color: #64748B !important;
+}
+
+aside .bg-deepspace\/50 {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+aside button:hover, aside a:hover {
+  background-color: #1E293B !important;
+  color: #FFFFFF !important;
+}
+
+aside .bg-nebula\/10 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  color: #60A5FA !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+aside .bg-nebula\/10.text-nebula {
+  background-color: #1E293B !important;
+  color: #FFFFFF !important;
+  border-left: 2px solid #2563EB !important;
+}
+
+/* Convert all Neon Glows into soft shadows / subtle borders */
+.glow-nebula-sm {
+  box-shadow: 0 1px 3px 0 rgba(37, 99, 235, 0.1), 0 1px 2px -1px rgba(37, 99, 235, 0.1) !important;
+}
+
+.glow-nebula-md {
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.08), 0 2px 4px -2px rgba(37, 99, 235, 0.08) !important;
+}
+
+.glow-nebula-lg {
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.08), 0 4px 6px -4px rgba(37, 99, 235, 0.08) !important;
+}
+
+.glow-star-sm {
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.15), 0 1px 2px -1px rgba(15, 23, 42, 0.15) !important;
+}
+
+.glow-star-md {
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.1) !important;
+}
+
+.glow-star-lg {
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.1) !important;
+}
+
+.glow-red-sm {
+  box-shadow: 0 1px 3px 0 rgba(239, 68, 68, 0.1) !important;
+}
+
+.glow-red-lg {
+  box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Recharts Clean Minimalism Overrides */
+.recharts-cartesian-grid-horizontal line, .recharts-cartesian-grid-vertical line {
+  stroke: #E2E8F0 !important;
+}
+
+.recharts-text {
+  fill: #64748B !important;
+  font-family: var(--font-sans) !important;
+  font-size: 10px !important;
+}
+
+.recharts-legend-item-text {
+  color: #475569 !important;
+}
+
+.recharts-tooltip-cursor {
+  stroke: #CBD5E1 !important;
+}
+
+.recharts-default-tooltip {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.recharts-tooltip-item {
+  color: #1E293B !important;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8FAFC;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
