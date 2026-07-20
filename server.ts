@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
-import { calculateDass21, calculatePhq9, calculateGad7 } from "./src/lib/clinical-algorithms/scorer.ts";
-import { evaluateDecisionTree, checkRedAlert } from "./src/lib/clinical-algorithms/decision-tree.ts";
+import { calculateDass21, calculatePhq9, calculateGad7 } from "./src/lib/clinical-algorithms/scorer.js";
+import { evaluateDecisionTree, checkRedAlert } from "./src/lib/clinical-algorithms/decision-tree.js";
 import { createClient } from "@supabase/supabase-js";
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
