@@ -49,12 +49,8 @@ async function analyzeScreeningWithGroq(scores: any, dominant_category: string) 
   }
 }
 
-async function startServer() {
-  const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
-  const HOST = process.env.HOST || "0.0.0.0";
-
-  app.use(express.json());
+export const app = express();
+app.use(express.json());
 
   // Auth: Login
   app.post("/api/auth/login", async (req, res) => {
@@ -435,18 +431,25 @@ async function startServer() {
   });
 
   // --- VITE MIDDLEWARE ---
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({ server: { middlewareMode: true }, appType: "spa" });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => res.sendFile(path.join(distPath, "index.html")));
+  async function startDevServer() {
+    const PORT = Number(process.env.PORT) || 3000;
+    const HOST = process.env.HOST || "0.0.0.0";
+
+    if (process.env.NODE_ENV !== "production") {
+      const vite = await createViteServer({ server: { middlewareMode: true }, appType: "spa" });
+      app.use(vite.middlewares);
+    } else {
+      const distPath = path.join(process.cwd(), "dist");
+      app.use(express.static(distPath));
+      app.get("*", (req, res) => res.sendFile(path.join(distPath, "index.html")));
+    }
+
+    app.listen(PORT, HOST, () => {
+      console.log(`Server running on ${HOST}:${PORT} (NODE_ENV=${process.env.NODE_ENV || "development"})`);
+    });
   }
 
-  const server = app.listen(PORT, HOST, () => {
-    console.log(`Server running on ${HOST}:${PORT} (NODE_ENV=${process.env.NODE_ENV || "development"})`);
-  });
-}
-
-startServer();
+  // Only start the local server if not running on Vercel
+  if (!process.env.VERCEL) {
+    startDevServer();
+  }
