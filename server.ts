@@ -9,7 +9,12 @@ import webpush from "web-push";
 
 dotenv.config();
 
-const supabase = createClient(process.env.SUPABASE_URL || "", process.env.SUPABASE_ANON_KEY || "");
+const SUPABASE_URL = process.env.SUPABASE_URL || "";
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || "";
+const supabase = createClient(
+  SUPABASE_URL || "https://dummy.supabase.co", 
+  SUPABASE_KEY || "dummy"
+);
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // VAPID Configuration for Web Push Notifications
@@ -694,7 +699,8 @@ https://kitadeteksi.com/dashboard/triage/bypass/${ticket.id}`);
     const HOST = process.env.HOST || "0.0.0.0";
 
     if (process.env.NODE_ENV !== "production") {
-      const { createServer: createViteServer } = await import("vite");
+      const vModule = "vite";
+      const { createServer: createViteServer } = await import(vModule);
       const vite = await createViteServer({ server: { middlewareMode: true }, appType: "spa" });
       app.use(vite.middlewares);
     } else {
