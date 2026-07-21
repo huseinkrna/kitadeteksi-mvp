@@ -118,7 +118,7 @@ export default function JournalModal({ isOpen, onClose, onSubmit }: JournalModal
             {/* Content Field */}
             <div>
               <label className="block text-xs font-semibold text-gray-400 mb-2 font-sans">
-                APA YANG SEDANG ANDA PIKIRKAN / RASAKAN?
+                APA YANG SEDANG ANDA PIKIRKAN / RASAKAN SAAT INI ?
               </label>
               <textarea
                 value={content}

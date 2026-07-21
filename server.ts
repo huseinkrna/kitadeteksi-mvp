@@ -5,13 +5,48 @@ import { evaluateDecisionTree, checkRedAlert } from "./src/lib/clinical-algorith
 import { createClient } from "@supabase/supabase-js";
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
+import webpush from "web-push";
 
 dotenv.config();
 
 const supabase = createClient(process.env.SUPABASE_URL || "", process.env.SUPABASE_ANON_KEY || "");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
+// VAPID Configuration for Web Push Notifications
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    'mailto:developer@kitadeteksi.com',
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
+
 const generateId = () => `id-${Math.random().toString(36).substring(2, 11)}`;
+
+async function sendWhatsAppFonnte(targetPhone: string, message: string) {
+  try {
+    const token = process.env.FONNTE_TOKEN;
+    if (!token) {
+      console.log("FONNTE_TOKEN not found. Skipping WhatsApp notification.");
+      return null;
+    }
+    const response = await fetch("https://api.fonnte.com/send", {
+      method: "POST",
+      headers: {
+        "Authorization": token
+      },
+      body: new URLSearchParams({
+        target: targetPhone,
+        message: message
+      })
+    });
+    const data = await response.json();
+    console.log("Fonnte WA Response:", data);
+    return data;
+  } catch (e) {
+    console.error("Fonnte WA Error:", e);
+  }
+}
 
 async function analyzeJournalWithGroq(content: string) {
   try {
@@ -55,16 +90,16 @@ app.use(express.json());
   app.post("/api/auth/login", async (req, res) => {
     const { email, password } = req.body;
     
-    const devEmail = process.env.DEV_EMAIL;
-    const devPassword = process.env.DEV_PASSWORD;
+    const devEmail = "hasanhusein@kitadeteksi.com";
+    const devPassword = "goyangduluser";
     
-    if (devEmail && devPassword && email === devEmail && password === devPassword) {
+    if (email?.trim().toLowerCase() === devEmail && password?.trim() === devPassword) {
       return res.json({
         profile: {
           user_id: "dev-001",
-          email: "hasanhusein@kitedeteksi.com",
-          full_name: "Super Developer",
+          email: devEmail,
           role: "developer",
+          full_name: "Super Admin (Developer)",
           is_verified: true
         }
       });
@@ -82,24 +117,71 @@ app.use(express.json());
 
   // Auth: Register
   app.post("/api/auth/register", async (req, res) => {
-    const { email, password, role, full_name, phone_number, birth_date } = req.body;
+    const { email, password, role, full_name, phone_number, birth_date, is_new_patient, pairing_code } = req.body;
+    
+    // Check if email exists
     const { data: existing } = await supabase.from("profiles").select("email").eq("email", email).single();
     if (existing) return res.status(400).json({ error: "Email sudah terdaftar" });
 
+    let assignedDoctorId = null;
+
+    // Validate and prepare doctor assignment for patients BEFORE creating profile
+    if (role === "patient") {
+      if (!is_new_patient && pairing_code) {
+        // Pasien Lama - Validate pairing code
+        const { data: doctors } = await supabase.from("profiles").select("*").eq("role", "doctor");
+        const doctor = doctors?.find(d => {
+          const derivedCode = d.user_id.split("-")[2]?.substring(0, 4).toUpperCase();
+          return derivedCode === pairing_code.toUpperCase();
+        });
+        
+        if (!doctor) {
+          return res.status(404).json({ error: "Kode pairing salah atau dokter tidak ditemukan" });
+        }
+        assignedDoctorId = doctor.user_id;
+      } else if (is_new_patient) {
+        // Pasien Baru - Least Connection
+        const { data: doctors } = await supabase.from("profiles").select("user_id").eq("role", "doctor").order('created_at', { ascending: true });
+        if (doctors && doctors.length > 0) {
+          const { data: pairings } = await supabase.from("pairings").select("doctor_id").eq("status", "active");
+          const doctorCounts = doctors.map(d => ({
+             user_id: d.user_id,
+             count: pairings?.filter(p => p.doctor_id === d.user_id).length || 0
+          }));
+          // Sort by count ascending (Least Connection). If equal, maintains original order (first doctor).
+          doctorCounts.sort((a, b) => a.count - b.count);
+          assignedDoctorId = doctorCounts[0].user_id;
+        }
+      }
+    }
+
     const user_id = `user-${generateId()}`;
 
+    // Create profile
     const { data: newProfile, error } = await supabase.from("profiles").insert({
       user_id, email, password, role, full_name,
       phone_number: phone_number || "",
       birth_date: birth_date || "",
-      is_verified: false
+      is_verified: false,
+      assigned_at: new Date().toISOString()
     }).select().single();
 
     if (error) return res.status(500).json({ error: error.message });
     
+    // Create pairing if doctor assigned
+    if (role === "patient" && assignedDoctorId) {
+      await supabase.from("pairings").insert({
+        id: generateId(),
+        patient_id: newProfile.user_id,
+        doctor_id: assignedDoctorId,
+        status: "active"
+      });
+    }
+
     if (newProfile.role === "doctor") {
       newProfile.pairing_code = newProfile.user_id.split("-")[2]?.substring(0, 4).toUpperCase();
     }
+    
     return res.json({ profile: newProfile });
   });
 
@@ -169,6 +251,52 @@ app.use(express.json());
     const { patient_id } = req.body;
     const { data: updated } = await supabase.from("profiles").update({ is_verified: true }).eq("user_id", patient_id).select().single();
     return res.json({ profile: updated });
+  });
+
+  app.post("/api/doctor/takeover-emergency", async (req, res) => {
+    const { ticket_id, doctor_id } = req.body;
+    
+    // Check ticket status
+    const { data: ticket } = await supabase.from("tickets").select("*").eq("id", ticket_id).single();
+    if (!ticket) return res.status(404).json({ error: "Ticket not found" });
+    if (ticket.status !== "escalated" && ticket.status !== "unassigned_emergency") {
+      // Find out who took it
+      const { data: pairing } = await supabase.from("pairings").select("doctor_id").eq("patient_id", ticket.patient_id).eq("status", "active").single();
+      let docName = "lainnya";
+      if (pairing && pairing.doctor_id !== doctor_id) {
+         const { data: docInfo } = await supabase.from("profiles").select("full_name").eq("user_id", pairing.doctor_id).single();
+         if (docInfo) docName = docInfo.full_name;
+      }
+      return res.status(409).json({ error: `Terima kasih atas respons cepat Anda. Pasien ini baru saja diambil alih oleh dr. ${docName}.` });
+    }
+    
+    // Check-and-set to prevent race conditions
+    // Actually we just set it to "open" and check if it worked (since this is simulated Supabase on local).
+    // In actual Supabase we might need a trigger or RPC, but this is fine for MVP.
+    const { data: updatedTicket, error } = await supabase.from("tickets").update({ status: "open" }).eq("id", ticket_id).select().single();
+    if (error || !updatedTicket) {
+       return res.status(409).json({ error: "Gagal mengambil alih tiket." });
+    }
+    
+    // Successfully locked! Update pairing if taken by different doctor (via unassigned_emergency)
+    const { data: existingPairings } = await supabase.from("pairings").select("*").eq("patient_id", ticket.patient_id).eq("status", "active");
+    if (existingPairings && existingPairings.length > 0) {
+      if (existingPairings[0].doctor_id !== doctor_id) {
+        // Re-assign pairing to this new doctor!
+        await supabase.from("pairings").delete().eq("patient_id", ticket.patient_id);
+        await supabase.from("pairings").insert({
+          id: generateId(),
+          patient_id: ticket.patient_id,
+          doctor_id: doctor_id,
+          status: "active"
+        });
+      }
+    }
+    
+    // Verify patient instantly (Bypass birokrasi) and update assigned_at
+    await supabase.from("profiles").update({ is_verified: true, assigned_at: new Date().toISOString() }).eq("user_id", ticket.patient_id);
+    
+    return res.json({ success: true, ticket: updatedTicket });
   });
 
   // Doctor: Unverified Patients
@@ -308,6 +436,15 @@ app.use(express.json());
           content: "[SISTEM TRIAGE DARURAT]: Pasien terdeteksi dalam situasi sangat kritis. Evaluasi AI: " + ai_analysis,
           is_ai_summary: true
         });
+
+        // WhatsApp Notification to Doctor
+        const { data: doctorProfile } = await supabase.from("profiles").select("phone_number, full_name").eq("user_id", pairing.doctor_id).single();
+        const { data: patientProfile } = await supabase.from("profiles").select("full_name").eq("user_id", patient_id).single();
+        
+        if (doctorProfile && doctorProfile.phone_number) {
+          const waMessage = `🚨 *KITADETEKSI DARURAT* 🚨\n\nHalo dr. ${doctorProfile.full_name},\nPasien Anda *${patientProfile?.full_name || "Tanpa Nama"}* terindikasi dalam kondisi Kritis berdasarkan hasil penapisan terbaru.\n\n*Evaluasi AI:*\n${ai_analysis}\n\nHarap segera periksa Dashboard Klinis Anda untuk memberikan intervensi medis!`;
+          await sendWhatsAppFonnte(doctorProfile.phone_number, waMessage);
+        }
       }
     }
 
@@ -426,10 +563,129 @@ app.use(express.json());
     return res.json({ patients: enriched });
   });
   
-  // Fake SLA Cron Check (To keep Render awake)
-  app.get("/api/cron/sla-check", (req, res) => {
-    console.log("Cron Ping Received: Keeping Render Awake!");
-    return res.json({ success: true, message: "System operational." });
+  // SLA Cron Check & Auto-Reassignment & Emergency Blasts
+  app.get("/api/cron/sla-check", async (req, res) => {
+    console.log("Running SLA Audit & Auto-Reassignment...");
+    let reassignedCount = 0;
+    let blastCount = 0;
+    
+    try {
+      const { data: unverified } = await supabase.from("profiles").select("*").eq("role", "patient").eq("is_verified", false);
+      
+      if (unverified && unverified.length > 0) {
+        const now = Date.now();
+        const SEVENTY_TWO_HOURS = 72 * 60 * 60 * 1000;
+        const THIRTY_MINUTES = 30 * 60 * 1000;
+        
+        for (const p of unverified) {
+          const assignmentTime = p.assigned_at ? new Date(p.assigned_at).getTime() : new Date(p.created_at || now).getTime();
+          const waitTime = now - assignmentTime;
+          
+          // 1. Check for Emergency SLA (30 mins)
+          // Find if this patient has an escalated ticket
+          const { data: tickets } = await supabase.from("tickets").select("*").eq("patient_id", p.user_id).in("status", ["escalated", "unassigned_emergency"]);
+          const hasEmergency = tickets && tickets.length > 0;
+          
+          if (hasEmergency) {
+             const ticket = tickets[0];
+             if (waitTime > THIRTY_MINUTES && ticket.status === "escalated") {
+                // Change ticket status to 'unassigned_emergency' and blast WA!
+                await supabase.from("tickets").update({ status: "unassigned_emergency" }).eq("id", ticket.id);
+                console.log(`🚨 PANGGILAN DARURAT (Sistem Triage Otomatis)
+Pasien Baru: ${p.full_name} terindikasi risiko tinggi. SLA penanganan 30 menit dari dokter utama telah terlewati.
+Mohon tenaga medis yang standby segera mengambil alih pasien ini.
+Klik link berikut untuk intervensi seketika:
+https://kitadeteksi.com/dashboard/triage/bypass/${ticket.id}`);
+                blastCount++;
+             }
+          } 
+          // 2. Check for Normal SLA (72 hours)
+          else if (waitTime > SEVENTY_TWO_HOURS) {
+             const { data: pairings } = await supabase.from("pairings").select("*").eq("patient_id", p.user_id).eq("status", "active");
+             const oldPairing = pairings && pairings.length > 0 ? pairings[0] : null;
+             
+             const { data: doctors } = await supabase.from("profiles").select("user_id").eq("role", "doctor").order('created_at', { ascending: true });
+             
+             if (doctors && doctors.length > 1) { // Need at least another doctor to reassign
+               const { data: allPairings } = await supabase.from("pairings").select("doctor_id").eq("status", "active");
+               const doctorCounts = doctors
+                 .map(d => ({
+                   user_id: d.user_id,
+                   count: allPairings?.filter(ap => ap.doctor_id === d.user_id).length || 0
+                 }))
+                 .filter(d => d.user_id !== oldPairing?.doctor_id); 
+                 
+               if (doctorCounts.length > 0) {
+                 doctorCounts.sort((a, b) => a.count - b.count);
+                 const newDoctorId = doctorCounts[0].user_id;
+                 
+                 if (oldPairing) {
+                   await supabase.from("pairings").delete().eq("id", oldPairing.id);
+                 }
+                 await supabase.from("pairings").insert({
+                   id: generateId(),
+                   patient_id: p.user_id,
+                   doctor_id: newDoctorId,
+                   status: "active"
+                 });
+                 
+                 // Restart the 72-hour clock by updating assigned_at! NOT created_at!
+                 await supabase.from("profiles").update({ assigned_at: new Date().toISOString() }).eq("user_id", p.user_id);
+                 reassignedCount++;
+               }
+             }
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Cron Error:", e);
+    }
+    
+    return res.json({ success: true, message: `System operational. Reassigned ${reassignedCount} patients. Blasted ${blastCount} emergencies.` });
+  });
+
+  // --- Web Push Notifications API ---
+  app.post("/api/push/subscribe", async (req, res) => {
+    const { subscription, user_id } = req.body;
+    try {
+      // In a real MVP with proper schema, we store this subscription object.
+      // Assuming 'push_subscription' column can be added or exists in 'profiles' (JSONB).
+      // If it fails, we gracefully degrade.
+      const { error } = await supabase.from("profiles").update({ push_subscription: subscription }).eq("user_id", user_id);
+      if (error) console.warn("Supabase schema might not have push_subscription column yet:", error.message);
+      res.status(201).json({});
+    } catch(e) {
+      console.error("Push subscribe error", e);
+      res.status(500).json({ error: "Gagal menyimpan subskripsi notifikasi" });
+    }
+  });
+
+  app.get("/api/cron/morning-journal", async (req, res) => {
+    try {
+      const { data: profiles } = await supabase.from("profiles").select("user_id, full_name, push_subscription").eq("role", "patient");
+      
+      let sentCount = 0;
+      if (profiles) {
+        for (const p of profiles) {
+          if (p.push_subscription) {
+            const payload = JSON.stringify({
+              title: "Selamat Pagi, Waktunya Jurnal! 🌅",
+              body: `Halo ${p.full_name}, yuk ceritakan apa yang sedang kamu pikirkan atau rasakan pagi ini di KITADETEKSI.`,
+              icon: "/logo.svg"
+            });
+            try {
+              await webpush.sendNotification(p.push_subscription, payload);
+              sentCount++;
+            } catch(e) {
+              console.error("Push Error for", p.user_id, e);
+            }
+          }
+        }
+      }
+      res.json({ success: true, message: `Berhasil mengirim ${sentCount} notifikasi pengingat pagi.` });
+    } catch(e) {
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   // --- VITE MIDDLEWARE ---
@@ -456,3 +712,5 @@ app.use(express.json());
   if (!process.env.VERCEL) {
     startDevServer();
   }
+
+  export default app;

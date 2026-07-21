@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ClipboardList, ArrowLeft, ArrowRight, ShieldCheck, HelpCircle } from "lucide-react";
+import { ClipboardList, ArrowLeft, ArrowRight, ShieldCheck, HelpCircle, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { DASS21_QUESTIONS, DASS21_OPTIONS, PHQ9_QUESTIONS, PHQ9_OPTIONS, GAD7_QUESTIONS, GAD7_OPTIONS } from "../lib/clinical-algorithms/questions";
 import { Profile, ScreeningResult } from "../types";
@@ -119,8 +119,8 @@ export default function ScreeningFlow({ profile, onFinish, onRedAlert }: Screeni
 
   if (finalResult) {
     return (
-      <div className="max-w-2xl mx-auto p-4 py-4 md:py-8 font-sans h-[calc(100vh-80px)] flex flex-col">
-        <div className="bg-surface-card border border-white/10 rounded-2xl overflow-hidden shadow-2xl glow-nebula-sm flex flex-col flex-1 p-6 md:p-8 text-center items-center justify-center">
+      <div className="max-w-md mx-auto p-4 py-4 md:py-8 font-sans min-h-[calc(100vh-80px)] flex items-center justify-center">
+        <div className="bg-surface-card border border-white/10 rounded-3xl overflow-hidden shadow-2xl glow-nebula-sm flex flex-col w-full p-6 md:p-8 text-center items-center">
           <ShieldCheck className="w-16 h-16 text-green-500 mb-6" />
           <h2 className="text-2xl font-bold text-gray-100 mb-2">Penapisan Selesai</h2>
           <p className="text-gray-400 mb-8 max-w-md text-sm leading-relaxed">
@@ -148,6 +148,24 @@ export default function ScreeningFlow({ profile, onFinish, onRedAlert }: Screeni
             </div>
           </div>
           
+          {(!finalResult.dominant_category?.toLowerCase().includes("parah") && !finalResult.dominant_category?.toLowerCase().includes("berat") && !finalResult.dominant_category?.toLowerCase().includes("sangat")) && (
+            <div className="bg-green-500/10 border border-green-500/20 w-full p-6 rounded-xl text-left mb-8 space-y-3">
+              <div className="flex items-center gap-2 text-green-400 mb-2">
+                <Heart className="w-5 h-5" />
+                <span className="font-bold text-sm">Tips Relaksasi: Teknik Pernapasan 4-7-8</span>
+              </div>
+              <p className="text-sm text-gray-300">
+                Teknik pernapasan ini sangat membantu untuk menenangkan pikiran dan meredakan ketegangan ringan. Lakukan langkah berikut:
+              </p>
+              <ul className="text-sm text-gray-400 list-disc pl-5 space-y-1">
+                <li>Tarik napas dalam melalui hidung selama <strong className="text-gray-200">4 detik</strong>.</li>
+                <li>Tahan napas Anda selama <strong className="text-gray-200">7 detik</strong>.</li>
+                <li>Hembuskan napas perlahan melalui mulut selama <strong className="text-gray-200">8 detik</strong>.</li>
+                <li>Ulangi siklus ini hingga 4 kali.</li>
+              </ul>
+            </div>
+          )}
+
           <button
             onClick={onFinish}
             className="px-8 py-3 bg-nebula text-deepspace font-bold rounded-full hover:bg-opacity-80 transition-all glow-nebula-sm flex items-center gap-2 cursor-pointer"

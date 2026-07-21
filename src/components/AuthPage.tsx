@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { Sparkles, Activity, ShieldCheck, Mail, Lock, User, Phone, CheckCircle2, ShieldAlert, RefreshCw, LogOut, Eye, EyeOff } from "lucide-react";
+import { Sparkles, Activity, ShieldCheck, Mail, Lock, User, Phone, CheckCircle2, ShieldAlert, RefreshCw, LogOut, Eye, EyeOff, Terminal } from "lucide-react";
 import { motion } from "motion/react";
 import { Profile } from "../types";
 
@@ -21,6 +21,8 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
   const [showUnverifiedScreen, setShowUnverifiedScreen] = useState(false);
   const [unverifiedProfile, setUnverifiedProfile] = useState<Profile | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isNewPatient, setIsNewPatient] = useState(true);
+  const [pairingCode, setPairingCode] = useState("");
 
   const handleCheckVerification = async () => {
     if (!unverifiedProfile) return;
@@ -73,7 +75,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
 
     const payload = isLogin 
       ? { email, password } 
-      : { email, password, full_name: fullName, phone_number: phoneNumber, birth_date: birthDate, role };
+      : { email, password, full_name: fullName, phone_number: phoneNumber, birth_date: birthDate, role, is_new_patient: isNewPatient, pairing_code: pairingCode };
 
     try {
       setLoading(true);
@@ -90,12 +92,23 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
       }
 
       if (isLogin) {
+        if (!data.profile.is_verified && data.profile.role === 'doctor') {
+          setUnverifiedProfile(data.profile);
+          setShowUnverifiedScreen(true);
+          return;
+        }
         setSuccess("Login Berhasil! Mengalihkan...");
         setTimeout(() => {
           onAuthSuccess(data.profile);
         }, 800);
       } else {
-        setSuccess("Registrasi Berhasil! Akun pasien baru memerlukan verifikasi oleh dokter sebelum dapat login.");
+        const msg = role === 'doctor' 
+          ? "Registrasi Berhasil! Akun dokter memerlukan verifikasi oleh developer sebelum dapat login."
+          : (role === 'patient' && isNewPatient)
+            ? "Registrasi Berhasil! Akun sedang ditinjau, tapi Anda sudah dapat login untuk melihat materi modul."
+            : "Registrasi Berhasil! Silakan login.";
+        
+        setSuccess(msg);
         setTimeout(() => {
           setIsLogin(true);
           setPassword("");
@@ -190,10 +203,14 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
           <div className="space-y-6">
             <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl flex flex-col items-center text-center">
               <ShieldAlert className="w-10 h-10 text-yellow-400 mb-3 animate-pulse" />
-              <h3 className="text-sm font-bold text-yellow-200 font-sans">Menunggu Verifikasi Dokter</h3>
+              <h3 className="text-sm font-bold text-yellow-200 font-sans">
+                {unverifiedProfile?.role === 'doctor' ? "Menunggu Verifikasi Developer" : "Menunggu Verifikasi Dokter"}
+              </h3>
               <p className="text-xs text-gray-400 mt-2 font-sans leading-relaxed">
-                Sesuai dengan protokol klinis <strong>KITADETEKSI</strong>, akun pasien baru wajib melalui proses 
-                verifikasi dokter pengawas terlebih dahulu untuk memastikan legalitas dan keselamatan asinkronous medis.
+                {unverifiedProfile?.role === 'doctor' 
+                  ? "Sesuai dengan protokol KITADETEKSI, akun dokter baru wajib melalui proses verifikasi oleh Developer Super Admin untuk memastikan kredensial."
+                  : "Sesuai dengan protokol klinis KITADETEKSI, akun pasien baru wajib melalui proses verifikasi dokter pengawas terlebih dahulu untuk memastikan legalitas dan keselamatan asinkronous medis."
+                }
               </p>
             </div>
 
@@ -266,6 +283,58 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
                   </button>
                 </div>
               </div>
+
+              {/* Status Pasien (Lama/Baru) */}
+              {!isLogin && role === 'patient' && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider font-sans">
+                    Status Pasien
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsNewPatient(false)}
+                      className={`py-2 px-4 rounded-xl text-xs font-semibold border transition-all ${
+                        !isNewPatient
+                          ? "bg-blue-600 text-white border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                          : "bg-surface-sunken text-gray-400 border-white/5 hover:border-white/20"
+                      }`}
+                    >
+                      Pasien Lama
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsNewPatient(true)}
+                      className={`py-2 px-4 rounded-xl text-xs font-semibold border transition-all ${
+                        isNewPatient
+                          ? "bg-green-600 text-white border-green-500 shadow-[0_0_15px_rgba(22,163,74,0.4)]"
+                          : "bg-surface-sunken text-gray-400 border-white/5 hover:border-white/20"
+                      }`}
+                    >
+                      Pasien Baru
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Pairing Code for Pasien Lama */}
+              {!isLogin && role === 'patient' && !isNewPatient && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider font-sans">
+                    Kode Pairing Dokter
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={pairingCode}
+                      onChange={(e) => setPairingCode(e.target.value)}
+                      placeholder="Masukkan kode unik dari dokter Anda"
+                      className="w-full bg-surface-sunken text-gray-200 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 font-sans"
+                      required={!isLogin && role === 'patient' && !isNewPatient}
+                    />
+                  </div>
+                </motion.div>
+              )}
 
               {/* Full Name */}
               <div>

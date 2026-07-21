@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   Home, Clipboard, Settings, Plus, BookOpen, Clock, 
-  MessageSquare, User, Activity, AlertCircle, Heart, ChevronRight, CheckCircle2 
+  MessageSquare, User, Activity, AlertCircle, Heart, ChevronRight, CheckCircle2, FileText, ShieldAlert 
 } from "lucide-react";
 import { motion } from "motion/react";
 import TrendChart from "./TrendChart";
@@ -55,18 +55,22 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
     e.preventDefault();
     try {
       setUpdatingProfile(true);
+      const updates: any = {
+        user_id: profile.user_id,
+        full_name: editFullName,
+        email: editEmail,
+        phone_number: editPhoneNumber,
+        birth_date: editBirthDate,
+        regimen: editRegimen
+      };
+      if (editPassword) {
+        updates.password = editPassword;
+      }
+      
       const res = await fetch("/api/profile/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: profile.user_id,
-          full_name: editFullName,
-          email: editEmail,
-          phone_number: editPhoneNumber,
-          birth_date: editBirthDate,
-          password: editPassword,
-          regimen: editRegimen
-        })
+        body: JSON.stringify(updates)
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gagal memperbarui profil");
@@ -196,6 +200,244 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
     }
   };
 
+  const handleExportPDF = () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      alert("Harap izinkan popup browser Anda untuk mengekspor Resume Medis.");
+      return;
+    }
+
+    // Parse structured medications
+    const parsedMeds = parseRegimen(profile.regimen);
+    const medTableHTML = parsedMeds.length === 0 
+      ? '<p style="font-size: 12px; color: #64748b; font-style: italic;">Tidak ada regimen obat yang aktif terdaftar.</p>' 
+      : `
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px;">
+          <thead>
+            <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1; text-align: left;">
+              <th style="padding: 10px; font-weight: bold;">Nama Obat</th>
+              <th style="padding: 10px; font-weight: bold;">Dosis</th>
+              <th style="padding: 10px; font-weight: bold;">Waktu Minum</th>
+              <th style="padding: 10px; font-weight: bold;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${parsedMeds.map(m => `
+              <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 10px; font-weight: bold; color: #1e293b;">${m.obat}</td>
+                <td style="padding: 10px; color: #334155;">${m.dosis}</td>
+                <td style="padding: 10px; color: #334155;">${m.waktu_minum}</td>
+                <td style="padding: 10px;">
+                  <span style="background: ${
+                    m.status === "Aktif" ? "#dcfce7; color: #15803d;" :
+                    m.status === "Selesai" ? "#f1f5f9; color: #475569;" :
+                    "#fef3c7; color: #b45309;"
+                  }; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase;">
+                    ${m.status}
+                  </span>
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+
+    // Generate SVG chart
+    const sortedScrs = [...screenings].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    let svgChartHTML = "";
+    if (sortedScrs.length > 0) {
+      const width = 600;
+      const height = 180;
+      const paddingLeft = 40;
+      const paddingRight = 40;
+      const paddingTop = 25;
+      const paddingBottom = 35;
+      
+      const chartWidth = width - paddingLeft - paddingRight;
+      const chartHeight = height - paddingTop - paddingBottom;
+      
+      let maxScore = 10;
+      const dataPoints = sortedScrs.map((s) => {
+        let score = 0;
+        if (s.test_type === "dass21") {
+          score = (s.raw_scores.dep || 0) + (s.raw_scores.anx || 0) + (s.raw_scores.str || 0);
+        } else {
+          score = s.raw_scores.total || 0;
+        }
+        if (score > maxScore) maxScore = score;
+        return {
+          date: new Date(s.created_at).toLocaleDateString("id-ID", { month: "short", day: "numeric" }),
+          score,
+          test_type: s.test_type.toUpperCase()
+        };
+      });
+      
+      maxScore = Math.ceil((maxScore + 2) / 5) * 5;
+      
+      const points = dataPoints.map((d, index) => {
+        const x = paddingLeft + (dataPoints.length > 1 ? (index / (dataPoints.length - 1)) * chartWidth : chartWidth / 2);
+        const y = paddingTop + chartHeight - (d.score / maxScore) * chartHeight;
+        return { ...d, x, y };
+      });
+      
+      let pathD = "";
+      if (points.length > 1) {
+        pathD = `M ${points[0].x} ${points[0].y} ` + points.slice(1).map(p => `L ${p.x} ${p.y}`).join(" ");
+      }
+      
+      const gridLines: string[] = [];
+      const ticks = 4;
+      for (let i = 0; i <= ticks; i++) {
+        const val = (maxScore / ticks) * i;
+        const y = paddingTop + chartHeight - (val / maxScore) * chartHeight;
+        gridLines.push(`
+          <line x1="${paddingLeft}" y1="${y}" x2="${width - paddingRight}" y2="${y}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 4" />
+          <text x="${paddingLeft - 8}" y="${y + 3}" font-family="sans-serif" font-size="9px" fill="#64748b" text-anchor="end">${val}</text>
+        `);
+      }
+      
+      const dotsAndLabels = points.map(p => `
+        <circle cx="${p.x}" cy="${p.y}" r="4" fill="#0284c7" stroke="#ffffff" stroke-width="1.5" />
+        <text x="${p.x}" y="${p.y - 8}" font-family="sans-serif" font-size="9px" font-weight="bold" fill="#0f172a" text-anchor="middle">${p.score}</text>
+        <text x="${p.x}" y="${paddingTop + chartHeight + 14}" font-family="sans-serif" font-size="8px" fill="#64748b" text-anchor="middle">${p.date}</text>
+        <text x="${p.x}" y="${paddingTop + chartHeight + 23}" font-family="sans-serif" font-size="7px" font-weight="bold" fill="#0284c7" text-anchor="middle">${p.test_type}</text>
+      `).join("");
+      
+      svgChartHTML = `
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-top: 15px; margin-bottom: 25px;">
+          <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #475569;">Grafik Tren Perkembangan Skor Penapisan Klinis</h3>
+          <div style="width: 100%; max-width: 600px; margin: 0 auto;">
+            <svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" style="overflow: visible;">
+              <!-- Grid lines -->
+              ${gridLines.join("")}
+              <!-- Connection path -->
+              ${points.length > 1 ? `<path d="${pathD}" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />` : ""}
+              <!-- Dots and Labels -->
+              ${dotsAndLabels}
+            </svg>
+          </div>
+        </div>
+      `;
+    }
+
+    const scrRows = screenings.map(s => `
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-family: monospace;">${new Date(s.created_at).toLocaleDateString("id-ID")}</td>
+        <td style="padding: 10px; font-weight: bold; color: #1e293b;">${s.test_type.toUpperCase()}</td>
+        <td style="padding: 10px;">${s.dominant_category}</td>
+        <td style="padding: 10px;">
+          ${s.is_critical 
+            ? '<span style="background: #fee2e2; color: #ef4444; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold;">CRITICAL</span>' 
+            : '<span style="background: #dcfce7; color: #22c55e; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold;">SAFE</span>'}
+        </td>
+        <td style="padding: 10px; font-family: monospace;">
+          ${s.test_type === "dass21" 
+            ? `Dep:${s.raw_scores.dep}, Anx:${s.raw_scores.anx}, Str:${s.raw_scores.str}`
+            : `Total Score: ${s.raw_scores.total}`
+          }
+        </td>
+      </tr>
+    `).join("");
+
+    const jrnRows = journals.map(j => `
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-bottom: 6px;">
+          <span>${new Date(j.created_at).toLocaleDateString("id-ID")}</span>
+          <span style="font-weight: bold; color: #16a34a;">Skala Mood: ${j.mood_scale}/10</span>
+        </div>
+        <p style="margin: 0; font-size: 12px; font-style: italic; color: #334155;">"${j.content}"</p>
+      </div>
+    `).join("");
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Resume Medis Pasien - KITADETEKSI</title>
+          <style>
+            body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 40px; line-height: 1.5; background-color: #ffffff; }
+            .header { border-bottom: 3px double #cbd5e1; padding-bottom: 20px; margin-bottom: 30px; text-align: center; }
+            .brand { font-size: 24px; font-weight: bold; color: #0284c7; letter-spacing: 1px; }
+            .subtitle { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-top: 5px; }
+            .section-title { font-size: 14px; font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-top: 30px; margin-bottom: 15px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; }
+            .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 12px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px; }
+            .bio-label { color: #64748b; font-weight: bold; }
+            .med-pill { background: #fff1f2; border: 1px solid #fecdd3; padding: 12px; border-radius: 8px; font-size: 12px; color: #9f1239; font-weight: bold; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+            th { background: #f1f5f9; padding: 10px; font-weight: bold; text-align: left; border-bottom: 2px solid #cbd5e1; }
+            .footer { margin-top: 50px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; }
+            .signature { margin-top: 40px; text-align: right; font-size: 12px; }
+            @media print {
+              body { padding: 20px; }
+              button { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div style="text-align: right; margin-bottom: 15px;">
+            <button onclick="window.print()" style="background: #0284c7; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px;">Cetak Resume (Unduh PDF)</button>
+          </div>
+
+          <div class="header">
+            <img src="/logo.svg" style="height: 60px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" alt="KITADETEKSI Logo" />
+            <div class="brand">RUMAH SAKIT MITRA DETEKSI JIWA</div>
+            <div class="subtitle">Platform Skrining & Tele-Psikiatri Asinkron "KITADETEKSI"</div>
+            <div style="font-size: 12px; margin-top: 10px; color: #334155; font-weight: 500;">LAPORAN RESUME RESMI PENUNJANG KLINIS</div>
+          </div>
+
+          <div class="bio-grid">
+            <div><span class="bio-label">NAMA PASIEN:</span> ${profile.full_name}</div>
+            <div><span class="bio-label">ALAMAT EMAIL:</span> ${profile.email}</div>
+            <div><span class="bio-label">NOMOR TELEPON:</span> ${profile.phone_number}</div>
+            <div><span class="bio-label">DOKTER PENANGGUNG JAWAB:</span> ${doctor?.full_name || "Belum ditautkan"}</div>
+          </div>
+
+          <div class="section-title">Aktivitas Regimen & Terapi Obat Saat Ini</div>
+          ${medTableHTML}
+
+          <!-- Dynamic SVG Trend Chart -->
+          ${svgChartHTML}
+
+          <div class="section-title">Riwayat Hasil Penapisan Klinis (DASS-21, PHQ-9, GAD-7)</div>
+          ${screenings.length === 0 ? '<p style="font-size: 12px; color: #64748b; font-style: italic;">Belum ada riwayat pengisian penapisan.</p>' : `
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding: 10px;">Tanggal Isi</th>
+                  <th style="padding: 10px;">Jenis Penapisan</th>
+                  <th style="padding: 10px;">Hasil / Kategori</th>
+                  <th style="padding: 10px;">Status Risiko</th>
+                  <th style="padding: 10px;">Skor Mentah</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${scrRows}
+              </tbody>
+            </table>
+          `}
+
+          <div class="section-title">Catatan Log Jurnal Harian Pasien</div>
+          ${journals.length === 0 ? '<p style="font-size: 12px; color: #64748b; font-style: italic;">Belum ada tulisan jurnal harian.</p>' : `
+            <div style="margin-top: 10px;">
+              ${jrnRows}
+            </div>
+          `}
+
+          <div class="signature">
+            <p>Jakarta, ${new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <div style="margin-top: 50px; font-weight: bold; text-decoration: underline;">${doctor?.full_name || "Psikiater Penanggung Jawab"}</div>
+            <p style="font-size: 11px; color: #64748b; margin: 0;">Psikiater Spesialis Jiwa / Penanggung Jawab</p>
+          </div>
+
+          <div class="footer">
+            <span>Dihasilkan secara otomatis oleh sistem KITADETEKSI. Dokumen ini sah dan diakui secara klinis.</span>
+            <span>Halaman 1 dari 1</span>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   // Screening schedule check: displays "14 hari lalu" or "belum pernah" based on screenings history
   const getLatestScreeningText = () => {
     if (screenings.length === 0) {
@@ -205,10 +447,18 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
     const diffTime = Math.abs(Date.now() - latest.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 0 || diffDays === 1) {
-      return "Terakhir isi: Baru saja hari ini/kemarin.";
+    const timeString = latest.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+    const dateString = latest.toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
+    
+    const isToday = new Date().setHours(0,0,0,0) === new Date(latest).setHours(0,0,0,0);
+    const isYesterday = new Date(Date.now() - 86400000).setHours(0,0,0,0) === new Date(latest).setHours(0,0,0,0);
+    
+    if (isToday) {
+      return `Terakhir isi: Hari ini jam ${timeString} WIB.`;
+    } else if (isYesterday) {
+      return `Terakhir isi: Kemarin jam ${timeString} WIB.`;
     }
-    return `Terakhir isi: ${diffDays} hari lalu.`;
+    return `Terakhir isi: ${diffDays} hari lalu (${dateString} jam ${timeString} WIB).`;
   };
 
   return (
@@ -229,9 +479,9 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
               <span className="text-[10px] text-gray-500 font-mono block uppercase">Dokter Pengawas</span>
               {doctor ? (
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs font-semibold text-gray-300 font-sans">
-                    {doctor.full_name}
+                  <div className={`w-2.5 h-2.5 rounded-full ${profile.is_verified ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`} />
+                  <span className={`text-xs font-semibold font-sans ${profile.is_verified ? 'text-gray-300' : 'text-yellow-400'}`}>
+                    {profile.is_verified ? doctor.full_name : 'Menunggu Verifikasi Dokter'}
                   </span>
                 </div>
               ) : (
@@ -252,16 +502,16 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
             </button>
             <button
               onClick={handleOpenChatRoom}
-              disabled={!doctor}
+              disabled={!doctor || !profile.is_verified}
               className={`w-full py-3 rounded-full text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 font-sans ${
-                doctor 
+                doctor && profile.is_verified 
                   ? "bg-star text-deepspace hover:bg-yellow-300 glow-star-sm cursor-pointer"
                   : "bg-gray-700/40 text-gray-500 border border-gray-600/20 cursor-not-allowed"
               }`}
               id="sidebar-btn-ticket"
             >
               <MessageSquare className="w-4 h-4" />
-              BUKA CHAT KONSULTASI
+              {!profile.is_verified ? "MENUNGGU VERIFIKASI" : "BUKA CHAT KONSULTASI"}
             </button>
           </div>
 
@@ -318,10 +568,24 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
           <motion.div 
             initial={{ opacity: 0, y: -10 }} 
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 bg-green-500/20 text-green-200 border border-green-500/30 text-xs rounded-xl flex items-center gap-2 font-sans"
+            className="p-4 bg-emerald-500 text-white border border-emerald-400 text-sm font-bold rounded-xl flex items-center gap-2 font-sans shadow-lg"
           >
-            <CheckCircle2 className="w-5 h-5 text-green-400" />
+            <CheckCircle2 className="w-5 h-5 text-white" />
             <span>{successMsg}</span>
+          </motion.div>
+        )}
+
+        {!profile.is_verified && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }} 
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-amber-500 text-black border border-amber-400 text-xs rounded-xl flex items-start gap-3 font-sans shadow-lg"
+          >
+            <ShieldAlert className="w-6 h-6 text-black flex-shrink-0 mt-0.5 animate-pulse" />
+            <div>
+              <strong className="block text-black text-sm mb-1 font-bold">Pemberitahuan Status Akun</strong>
+              Anda bebas mengakses dan mengisi fitur Penapisan Klinis serta Jurnal Harian. Namun, untuk dapat mengakses fitur <strong>Chat Konsultasi Dokter</strong>, akun Anda sedang dalam antrean dan harus diverifikasi terlebih dahulu oleh dokter pengawas Anda.
+            </div>
           </motion.div>
         )}
 
@@ -383,8 +647,17 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
                     <div>
                       <h4 className="text-sm font-bold text-gray-100">Room Chat Konsultasi Aktif</h4>
                       <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                        Anda terhubung langsung dengan <strong>{doctor?.full_name || "Psikiater Pengawas"}</strong>. 
-                        Cukup buat 1 tiket konsultasi ini untuk digunakan selamanya tanpa batas tiket baru.
+                        {!profile.is_verified ? (
+                          <>
+                            Akun Anda sedang <strong>dalam proses verifikasi</strong> oleh {doctor?.full_name || "Dokter"}. 
+                            Fitur chat akan terbuka setelah disetujui.
+                          </>
+                        ) : (
+                          <>
+                            Anda terhubung langsung dengan <strong>{doctor?.full_name || "Psikiater Pengawas"}</strong>. 
+                            Cukup buat 1 tiket konsultasi ini untuk digunakan selamanya tanpa batas tiket baru.
+                          </>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -392,11 +665,15 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
                   <div className="pt-2">
                     <button
                       onClick={handleOpenChatRoom}
-                      disabled={!doctor}
-                      className="w-full py-2.5 bg-star text-deepspace hover:bg-yellow-300 font-bold text-xs rounded-full transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer glow-star-sm"
+                      disabled={!doctor || !profile.is_verified}
+                      className={`w-full py-2.5 font-bold text-xs rounded-full transition-all duration-200 flex items-center justify-center gap-2 ${
+                        doctor && profile.is_verified 
+                          ? "bg-star text-deepspace hover:bg-yellow-300 cursor-pointer glow-star-sm" 
+                          : "bg-gray-700/40 text-gray-500 cursor-not-allowed"
+                      }`}
                     >
                       <MessageSquare className="w-4 h-4" />
-                      Masuk ke Room Chat Konsultasi
+                      {!profile.is_verified ? "Menunggu Verifikasi Dokter..." : "Masuk ke Room Chat Konsultasi"}
                     </button>
                   </div>
                 </div>
@@ -461,10 +738,19 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
           <div className="space-y-8" id="tab-riwayat">
             
             <section className="bg-surface-card p-6 rounded-2xl border border-white/5 space-y-4">
-              <h2 className="font-display text-lg font-bold text-gray-100 tracking-tight flex items-center gap-2">
-                <Clipboard className="w-5 h-5 text-nebula" />
-                Histori Hasil Penapisan Klinis
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-lg font-bold text-gray-100 tracking-tight flex items-center gap-2">
+                  <Clipboard className="w-5 h-5 text-nebula" />
+                  Histori Hasil Penapisan Klinis
+                </h2>
+                <button
+                  onClick={handleExportPDF}
+                  className="px-4 py-2 bg-nebula/10 text-nebula hover:bg-nebula hover:text-deepspace text-xs font-bold rounded-full transition-colors flex items-center gap-2 cursor-pointer"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span className="hidden sm:inline">Unduh Resume PDF</span>
+                </button>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>

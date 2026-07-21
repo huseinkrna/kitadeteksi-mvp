@@ -202,18 +202,22 @@ export default function DoctorDashboard({ profile, onViewTicket, onProfileUpdate
     e.preventDefault();
     try {
       setSavingProfile(true);
-      const res = await fetch("/api/profile/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        const updates: any = {
           user_id: profile.user_id,
           full_name: doctorName,
           email: doctorEmail,
           phone_number: doctorPhone,
           birth_date: doctorBirthDate,
-          password: doctorPassword,
           specialization: doctorSpecialization
-        })
+        };
+        if (doctorPassword) {
+          updates.password = doctorPassword;
+        }
+
+        const res = await fetch("/api/profile/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updates)
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gagal memperbarui");
@@ -714,6 +718,23 @@ export default function DoctorDashboard({ profile, onViewTicket, onProfileUpdate
           </div>
         )}
 
+        {/* Unverified SLA > 24H Alert */}
+        {unverifiedPatients.some(p => p.created_at && Date.now() - new Date(p.created_at).getTime() > 24 * 60 * 60 * 1000) && (
+          <div className="bg-amber-50 border-2 border-amber-500 rounded-xl p-4 flex items-center justify-between shadow-sm animate-pulse">
+            <div className="flex items-center gap-3">
+              <Clock className="w-6 h-6 text-amber-500" />
+              <div>
+                <h4 className="font-sans text-sm font-extrabold text-amber-800">
+                  PENGINGAT: ADA PASIEN BARU MENUNGGU VERIFIKASI &gt; 24 JAM
+                </h4>
+                <p className="text-xs text-amber-700 font-sans mt-0.5">
+                  Harap segera verifikasi pasien baru di tab "Verifikasi Pasien". Jika dibiarkan lebih dari 72 jam, pasien akan otomatis dialihkan ke dokter lain.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TAB 1: ANTREAN & DETAIL KLINIS */}
         {activeTab === "antrean" && (
           <div className="space-y-8">
@@ -764,7 +785,7 @@ export default function DoctorDashboard({ profile, onViewTicket, onProfileUpdate
                               key={t.id} 
                               onClick={() => onViewTicket(t.id)}
                               className={`border-b border-slate-100 hover:bg-slate-50 transition-colors font-sans cursor-pointer ${
-                                t.status === "escalated" ? "bg-red-50/50" : ""
+                                (t.status === "escalated" || t.status === "unassigned_emergency") ? "bg-red-50/50" : ""
                               }`}
                             >
                               <td className="py-4 px-2 font-mono font-bold text-sky-600">#{t.id}</td>
@@ -774,7 +795,7 @@ export default function DoctorDashboard({ profile, onViewTicket, onProfileUpdate
                               </td>
                               <td className="py-4 px-2">
                                 <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase font-mono tracking-wider ${
-                                  t.status === "escalated"
+                                  (t.status === "escalated" || t.status === "unassigned_emergency")
                                     ? "bg-red-100 text-red-800 border border-red-200 animate-pulse"
                                     : "bg-amber-100 text-amber-800 border border-amber-200"
                                 }`}>
@@ -791,7 +812,7 @@ export default function DoctorDashboard({ profile, onViewTicket, onProfileUpdate
                               </td>
                               <td className="py-4 px-2 text-right">
                                 <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                                  {t.status === "escalated" && (
+                                  {(t.status === "escalated" || t.status === "unassigned_emergency") && (
                                     <button
                                       onClick={() => handleResolveEmergencyWithCountdown(t.id)}
                                       className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-full transition-all cursor-pointer"
