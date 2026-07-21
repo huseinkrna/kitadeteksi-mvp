@@ -15,7 +15,7 @@ const supabase = createClient(
   SUPABASE_URL || "https://dummy.supabase.co", 
   SUPABASE_KEY || "dummy"
 );
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || "dummy_key" });
 
 // VAPID Configuration for Web Push Notifications
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
