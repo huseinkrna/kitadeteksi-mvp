@@ -447,24 +447,13 @@ app.use(express.json());
             is_ai_summary: true
           });
 
-          // WhatsApp Notification
-          const { data: patientProfile } = await supabase.from("profiles").select("full_name, is_verified").eq("user_id", patient_id).single();
+          // WhatsApp Notification (Menit ke-0: Hanya ke Dokter Penanggung Jawab)
+          const { data: doctorProfile } = await supabase.from("profiles").select("phone_number").eq("user_id", pairing.doctor_id).single();
+          const { data: patientProfile } = await supabase.from("profiles").select("full_name").eq("user_id", patient_id).single();
           const waMessage = `🚨 DARURAT (Pasien: ${patientProfile?.full_name || "Tanpa Nama"})\n\nEvaluasi AI: ${ai_analysis}\n\nAmbil alih: https://kitadeteksi-mvp.vercel.app/dashboard/triage/bypass/${ticketId}`;
           
-          if (patientProfile && patientProfile.is_verified === false) {
-            // Pasien Baru (Belum diverifikasi): Blast ke SEMUA dokter!
-            const { data: doctors } = await supabase.from("profiles").select("phone_number").eq("role", "doctor");
-            if (doctors) {
-               for (const doc of doctors) {
-                 if (doc.phone_number) await sendWhatsAppFonnte(doc.phone_number, waMessage);
-               }
-            }
-          } else {
-            // Pasien Lama (Sudah diverifikasi): Blast HANYA ke dokter utamanya
-            const { data: doctorProfile } = await supabase.from("profiles").select("phone_number").eq("user_id", pairing.doctor_id).single();
-            if (doctorProfile && doctorProfile.phone_number) {
-              await sendWhatsAppFonnte(doctorProfile.phone_number, waMessage);
-            }
+          if (doctorProfile && doctorProfile.phone_number) {
+             await sendWhatsAppFonnte(doctorProfile.phone_number, waMessage);
           }
         }
       }
@@ -552,6 +541,20 @@ app.use(express.json());
     await supabase.from("tickets").update({ updated_at: new Date().toISOString() }).eq("id", ticketId);
     
     const { data: updatedTicket } = await supabase.from("tickets").select("*").eq("id", ticketId).single();
+    
+    // Kirim Notifikasi WA ke Penerima (Dokter/Pasien)
+    if (updatedTicket) {
+      const recipientId = sender_id === updatedTicket.patient_id ? updatedTicket.doctor_id : updatedTicket.patient_id;
+      const { data: recipientProfile } = await supabase.from("profiles").select("phone_number, full_name").eq("user_id", recipientId).single();
+      const { data: senderProfile } = await supabase.from("profiles").select("full_name").eq("user_id", sender_id).single();
+      
+      if (recipientProfile && recipientProfile.phone_number) {
+        const textMsg = message_payload.length > 50 ? message_payload.substring(0, 50) + "..." : message_payload;
+        const waMsg = `✉️ Pesan Konsultasi Baru\nDari: ${senderProfile?.full_name || "Pengguna"}\n\n"${textMsg}"\n\nBuka KITADETEKSI: https://kitadeteksi-mvp.vercel.app/`;
+        await sendWhatsAppFonnte(recipientProfile.phone_number, waMsg);
+      }
+    }
+
     return res.json({ message, ticket: updatedTicket });
   });
 
