@@ -427,28 +427,34 @@ app.use(express.json());
 
     if (is_critical) {
       const { data: pairings } = await supabase.from("pairings").select("doctor_id").eq("patient_id", patient_id);
-      const { data: existingTickets } = await supabase.from("tickets").select("*").eq("patient_id", patient_id).in("status", ["open", "escalated"]);
+      const { data: existingTickets } = await supabase.from("tickets").select("*").eq("patient_id", patient_id).in("status", ["open", "escalated", "unassigned_emergency"]);
       const pairing = pairings && pairings.length > 0 ? pairings[0] : null;
       if (pairing) {
         let ticketId = existingTickets && existingTickets.length > 0 ? existingTickets[0].id : generateId();
+        const isAlreadyEmergency = existingTickets && existingTickets.length > 0 && (existingTickets[0].status === "escalated" || existingTickets[0].status === "unassigned_emergency");
+
         if (!existingTickets || existingTickets.length === 0) {
           await supabase.from("tickets").insert({ id: ticketId, patient_id, doctor_id: pairing.doctor_id, status: "escalated" });
-        } else {
+        } else if (!isAlreadyEmergency) {
           await supabase.from("tickets").update({ status: "escalated", updated_at: new Date().toISOString() }).eq("id", ticketId);
         }
-        await supabase.from("ticket_messages").insert({
-          id: generateId(), ticket_id: ticketId, sender_id: patient_id, 
-          content: "[SISTEM TRIAGE DARURAT]: Pasien terdeteksi dalam situasi sangat kritis. Evaluasi AI: " + ai_analysis,
-          is_ai_summary: true
-        });
-
-        // WhatsApp Notification to Doctor
-        const { data: doctorProfile } = await supabase.from("profiles").select("phone_number, full_name").eq("user_id", pairing.doctor_id).single();
-        const { data: patientProfile } = await supabase.from("profiles").select("full_name").eq("user_id", patient_id).single();
         
-        if (doctorProfile && doctorProfile.phone_number) {
-          const waMessage = `🚨 *KITADETEKSI DARURAT* 🚨\n\nHalo dr. ${doctorProfile.full_name},\nPasien Anda *${patientProfile?.full_name || "Tanpa Nama"}* terindikasi dalam kondisi Kritis berdasarkan hasil penapisan terbaru.\n\n*Evaluasi AI:*\n${ai_analysis}\n\nHarap segera periksa Dashboard Klinis Anda untuk memberikan intervensi medis!`;
-          await sendWhatsAppFonnte(doctorProfile.phone_number, waMessage);
+        // Send WA Blast and System Message ONLY IF NOT ALREADY IN EMERGENCY
+        if (!isAlreadyEmergency) {
+          await supabase.from("ticket_messages").insert({
+            id: generateId(), ticket_id: ticketId, sender_id: patient_id, 
+            content: "[SISTEM TRIAGE DARURAT]: Pasien terdeteksi dalam situasi sangat kritis. Evaluasi AI: " + ai_analysis,
+            is_ai_summary: true
+          });
+
+          // WhatsApp Notification to Doctor
+          const { data: doctorProfile } = await supabase.from("profiles").select("phone_number, full_name").eq("user_id", pairing.doctor_id).single();
+          const { data: patientProfile } = await supabase.from("profiles").select("full_name").eq("user_id", patient_id).single();
+          
+          if (doctorProfile && doctorProfile.phone_number) {
+            const waMessage = `🚨 DARURAT (Pasien: ${patientProfile?.full_name || "Tanpa Nama"})\n\nEvaluasi AI: ${ai_analysis}\n\nAmbil alih: https://kitadeteksi-mvp.vercel.app/dashboard/triage/bypass/${ticketId}`;
+            await sendWhatsAppFonnte(doctorProfile.phone_number, waMessage);
+          }
         }
       }
     }
@@ -467,7 +473,7 @@ app.use(express.json());
   // Tickets: Create
   app.post("/api/tickets/create", async (req, res) => {
     const { patient_id, doctor_id, initial_message } = req.body;
-    const { data: existingTickets } = await supabase.from("tickets").select("*").eq("patient_id", patient_id).in("status", ["open", "escalated"]);
+    const { data: existingTickets } = await supabase.from("tickets").select("*").eq("patient_id", patient_id).in("status", ["open", "escalated", "unassigned_emergency"]);
     const existing = existingTickets && existingTickets.length > 0 ? existingTickets[0] : null;
     let ticketId = existing ? existing.id : generateId();
 
@@ -596,11 +602,16 @@ app.use(express.json());
              if (waitTime > THIRTY_MINUTES && ticket.status === "escalated") {
                 // Change ticket status to 'unassigned_emergency' and blast WA!
                 await supabase.from("tickets").update({ status: "unassigned_emergency" }).eq("id", ticket.id);
-                console.log(`🚨 PANGGILAN DARURAT (Sistem Triage Otomatis)
-Pasien Baru: ${p.full_name} terindikasi risiko tinggi. SLA penanganan 30 menit dari dokter utama telah terlewati.
-Mohon tenaga medis yang standby segera mengambil alih pasien ini.
-Klik link berikut untuk intervensi seketika:
-https://kitadeteksi.com/dashboard/triage/bypass/${ticket.id}`);
+                const waMessage = `🚨 DARURAT (Pasien: ${p.full_name})\n\nEvaluasi AI: Pasien kritis SLA terlewati, segera intervensi!\n\nAmbil alih: https://kitadeteksi-mvp.vercel.app/dashboard/triage/bypass/${ticket.id}`;
+                console.log(waMessage);
+                
+                // Cari nomor HP dokter-dokter spesialis untuk diblast
+                const { data: doctors } = await supabase.from("profiles").select("phone_number").eq("role", "doctor");
+                if (doctors) {
+                   for (const doc of doctors) {
+                     if (doc.phone_number) await sendWhatsAppFonnte(doc.phone_number, waMessage);
+                   }
+                }
                 blastCount++;
              }
           } 
