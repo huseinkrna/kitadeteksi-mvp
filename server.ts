@@ -542,16 +542,34 @@ app.use(express.json());
     
     const { data: updatedTicket } = await supabase.from("tickets").select("*").eq("id", ticketId).single();
     
-    // Kirim Notifikasi WA ke Penerima (Dokter/Pasien)
+    // Kirim Notifikasi WA & Web Push ke Penerima (Dokter/Pasien)
     if (updatedTicket) {
       const recipientId = sender_id === updatedTicket.patient_id ? updatedTicket.doctor_id : updatedTicket.patient_id;
-      const { data: recipientProfile } = await supabase.from("profiles").select("phone_number, full_name").eq("user_id", recipientId).single();
+      const { data: recipientProfile } = await supabase.from("profiles").select("phone_number, full_name, push_subscription").eq("user_id", recipientId).single();
       const { data: senderProfile } = await supabase.from("profiles").select("full_name").eq("user_id", sender_id).single();
       
-      if (recipientProfile && recipientProfile.phone_number) {
-        const textMsg = message_payload.length > 50 ? message_payload.substring(0, 50) + "..." : message_payload;
-        const waMsg = `✉️ Pesan Konsultasi Baru\nDari: ${senderProfile?.full_name || "Pengguna"}\n\n"${textMsg}"\n\nBuka KITADETEKSI: https://kitadeteksi-mvp.vercel.app/`;
-        await sendWhatsAppFonnte(recipientProfile.phone_number, waMsg);
+      const textMsg = message_payload.length > 50 ? message_payload.substring(0, 50) + "..." : message_payload;
+      
+      if (recipientProfile) {
+        // 1. Web Push Notification (PWA)
+        if (recipientProfile.push_subscription && process.env.VAPID_PUBLIC_KEY) {
+           const payload = JSON.stringify({
+              title: `Pesan Baru dari ${senderProfile?.full_name || "Pengguna"}`,
+              body: textMsg,
+              icon: "/logo.svg"
+           });
+           try {
+             await webpush.sendNotification(recipientProfile.push_subscription, payload);
+           } catch(e) {
+             console.error("Web Push Error for message:", e);
+           }
+        }
+        
+        // 2. WA Notification
+        if (recipientProfile.phone_number) {
+          const waMsg = `✉️ Pesan Konsultasi Baru\nDari: ${senderProfile?.full_name || "Pengguna"}\n\n"${textMsg}"\n\nBuka KITADETEKSI: https://kitadeteksi-mvp.vercel.app/`;
+          await sendWhatsAppFonnte(recipientProfile.phone_number, waMsg);
+        }
       }
     }
 
