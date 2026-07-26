@@ -222,7 +222,7 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                         <div className="flex justify-between items-start mb-2 mt-1">
                           <div>
                             <span className="text-xs text-gray-600 font-bold block uppercase tracking-wider">{tier.title}</span>
-                            <h4 className="text-2xl font-black text-red-600 flex items-baseline gap-1 mt-0.5">
+                            <h4 className="text-2xl font-black text-slate-800 flex items-baseline gap-1 mt-0.5">
                               {tier.tokens} <span className="text-xs font-bold text-gray-700">Token</span>
                             </h4>
                           </div>
@@ -234,7 +234,7 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                         </div>
 
                         <div className="my-3 pt-3 border-t border-gray-200 flex justify-between items-baseline">
-                          <span className="text-base font-black text-red-600">{formatRupiah(tier.price)}</span>
+                          <span className="text-base font-black text-slate-800">{formatRupiah(tier.price)}</span>
                           <span className="text-[11px] text-gray-600 font-mono font-semibold">({formatRupiah(tier.perToken)}/tok)</span>
                         </div>
                       </div>
@@ -285,9 +285,9 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                 <span className="bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
                   Midtrans Sandbox Mode
                 </span>
-                <h4 className="text-lg font-black text-gray-900 mt-2">Pindai QRIS untuk Pembayaran</h4>
-                <p className="text-xs text-gray-700 font-medium">
-                  Total tagihan: <strong className="text-gray-900 font-mono font-bold text-sm">{formatRupiah(selectedTier.price)}</strong> ({selectedTier.tokens} Token)
+                <h4 className="text-lg font-black text-slate-800 mt-2">Pindai QRIS untuk Pembayaran</h4>
+                <p className="text-xs text-slate-800 font-bold">
+                  Total tagihan: <strong className="text-slate-800 font-mono font-black text-sm">{formatRupiah(selectedTier.price)}</strong> ({selectedTier.tokens} Token)
                 </p>
                 <p className="text-[10px] font-mono text-gray-500">ID Pesanan: {orderId}</p>
               </div>
@@ -310,7 +310,7 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                   <Zap className="w-4 h-4 text-amber-600" />
                   FITUR ESCAPE HATCH (LIVE DEMO)
                 </div>
-                <p className="text-[11px] text-gray-700 font-medium leading-relaxed">
+                <p className="text-[11px] text-slate-800 font-bold leading-relaxed">
                   Dalam sesi demonstrasi presentasi, tekan tombol di bawah ini untuk menyimulasikan *Webhook Midtrans* berhasil menerima pembayaran dan langsung menambahkan token ke akun Anda.
                 </p>
                 <button
@@ -333,7 +333,7 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
 
               <button
                 onClick={() => setStep("pricing")}
-                className="text-xs text-gray-600 hover:text-gray-900 font-medium underline transition-colors cursor-pointer"
+                className="text-xs text-gray-600 hover:text-red-600 font-bold underline transition-colors cursor-pointer"
               >
                 Kembali pilih paket lain
               </button>
