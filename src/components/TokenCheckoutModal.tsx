@@ -41,22 +41,22 @@ const PRICING_TIERS: TierOption[] = [
   },
   {
     id: "tier_3",
-    title: "Deep Talk / Healing ✨",
+    title: "Deeptalk ✨",
     tokens: 5,
     price: 217500,
     discount: "HEMAT 13%",
     perToken: 43500,
-    label: "PALING HEMAT / BEST SELLER",
+    label: "PALING HEMAT",
     isBestSeller: true
   },
   {
     id: "tier_4",
-    title: "Zen Master / Sultan 👑",
+    title: "Sultan 👑",
     tokens: 10,
     price: 400000,
     discount: "Hemat 20%",
     perToken: 40000,
-    label: "Hemat Rp 100rb!"
+    label: "Hemat 100 Ribu"
   }
 ];
 
@@ -203,7 +203,14 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                           : "bg-white border-gray-200 hover:border-gray-400 hover:bg-gray-50"
                       }`}
                     >
-                      {/* Ribbon Selected */}
+                      {/* Ribbon Label (Nyoba Dulu, Paling Pas, Paling Hemat, Hemat 100 Ribu) */}
+                      {tier.label && (
+                        <div className="absolute -top-3 left-4 bg-slate-900 border border-slate-700 text-white font-extrabold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow-md z-20">
+                          {tier.label}
+                        </div>
+                      )}
+
+                      {/* Ribbon Selected (Di Kanan) */}
                       {isSelected && (
                         <div className="absolute -top-3 right-4 bg-amber-500 text-black font-extrabold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1 z-20">
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
@@ -211,26 +218,12 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                         </div>
                       )}
 
-                      {/* Ribbon Best Seller */}
-                      {isBest && !isSelected && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-extrabold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" />
-                          PALING HEMAT / BEST SELLER
-                        </div>
-                      )}
-
-                      {tier.label && !isBest && !isSelected && (
-                        <div className="absolute -top-2.5 right-4 bg-gray-800 text-white text-[9px] px-2.5 py-0.5 rounded-full uppercase font-mono tracking-wider shadow-sm">
-                          {tier.label}
-                        </div>
-                      )}
-
                       <div>
-                        <div className="flex justify-between items-start mb-2">
+                        <div className="flex justify-between items-start mb-2 mt-1">
                           <div>
-                            <span className="text-xs text-gray-500 font-bold block uppercase tracking-wider">{tier.title}</span>
-                            <h4 className="text-2xl font-black text-gray-900 flex items-baseline gap-1 mt-0.5">
-                              {tier.tokens} <span className="text-xs font-normal text-gray-600">Token</span>
+                            <span className="text-xs text-gray-600 font-bold block uppercase tracking-wider">{tier.title}</span>
+                            <h4 className="text-2xl font-black text-red-600 flex items-baseline gap-1 mt-0.5">
+                              {tier.tokens} <span className="text-xs font-bold text-gray-700">Token</span>
                             </h4>
                           </div>
                           {tier.discount !== "0%" && (
@@ -241,8 +234,8 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                         </div>
 
                         <div className="my-3 pt-3 border-t border-gray-200 flex justify-between items-baseline">
-                          <span className="text-sm font-bold text-gray-900">{formatRupiah(tier.price)}</span>
-                          <span className="text-[11px] text-gray-500 font-mono">({formatRupiah(tier.perToken)}/tok)</span>
+                          <span className="text-base font-black text-red-600">{formatRupiah(tier.price)}</span>
+                          <span className="text-[11px] text-gray-600 font-mono font-semibold">({formatRupiah(tier.perToken)}/tok)</span>
                         </div>
                       </div>
 
