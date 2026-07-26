@@ -93,101 +93,123 @@ app.use(express.json());
 
   // Auth: Login
   app.post("/api/auth/login", async (req, res) => {
-    const { email, password } = req.body;
-    
-    const devEmail = "hasanhusein@kitadeteksi.com";
-    const devPassword = "goyangduluser";
-    
-    if (email?.trim().toLowerCase() === devEmail && password?.trim() === devPassword) {
-      return res.json({
-        profile: {
-          user_id: "dev-001",
-          email: devEmail,
-          role: "developer",
-          full_name: "Super Admin (Developer)",
-          is_verified: true
-        }
-      });
-    }
+    try {
+      const { email, password } = req.body;
+      
+      const devEmail = "hasanhusein@kitadeteksi.com";
+      const devPassword = "goyangduluser";
+      
+      if (email?.trim().toLowerCase() === devEmail && password?.trim() === devPassword) {
+        return res.json({
+          profile: {
+            user_id: "dev-001",
+            email: devEmail,
+            role: "developer",
+            full_name: "Super Admin (Developer)",
+            is_verified: true
+          }
+        });
+      }
 
-    const { data: profile } = await supabase.from("profiles").select("*").eq("email", email).single();
-    if (!profile) return res.status(404).json({ error: "Akun tidak ditemukan" });
-    if (password && profile.password !== password) return res.status(401).json({ error: "Password salah" });
-    
-    if (profile.role === "doctor") {
-      profile.pairing_code = profile.user_id.split("-")[2]?.substring(0, 4).toUpperCase();
+      if (!process.env.SUPABASE_URL || process.env.SUPABASE_URL === "https://dummy.supabase.co") {
+        return res.status(500).json({ 
+          error: "Konfigurasi Database Vercel Kosong: Variabel SUPABASE_URL belum aktif di lingkungan Preview ini. Harap centang 'Preview' di pengaturan Vercel dan lakukan Redeploy tanpa cache." 
+        });
+      }
+
+      const { data: profile, error: fetchErr } = await supabase.from("profiles").select("*").eq("email", email).single();
+      if (fetchErr || !profile) return res.status(404).json({ error: "Akun tidak ditemukan atau email salah" });
+      if (password && profile.password !== password) return res.status(401).json({ error: "Password salah" });
+      
+      if (profile.role === "doctor") {
+        profile.pairing_code = profile.user_id.split("-")[2]?.substring(0, 4).toUpperCase();
+      }
+      return res.json({ profile });
+    } catch (err: any) {
+      console.error("Login error:", err);
+      return res.status(500).json({ error: `Gagal login (Error Server): ${err.message || err}` });
     }
-    return res.json({ profile });
   });
 
   // Auth: Register
   app.post("/api/auth/register", async (req, res) => {
-    const { email, password, role, full_name, phone_number, birth_date, is_new_patient, pairing_code } = req.body;
-    
-    // Check if email exists
-    const { data: existing } = await supabase.from("profiles").select("email").eq("email", email).single();
-    if (existing) return res.status(400).json({ error: "Email sudah terdaftar" });
-
-    let assignedDoctorId = null;
-
-    // Validate and prepare doctor assignment for patients BEFORE creating profile
-    if (role === "patient") {
-      if (!is_new_patient && pairing_code) {
-        // Pasien Lama - Validate pairing code
-        const { data: doctors } = await supabase.from("profiles").select("*").eq("role", "doctor");
-        const doctor = doctors?.find(d => {
-          const derivedCode = d.user_id.split("-")[2]?.substring(0, 4).toUpperCase();
-          return derivedCode === pairing_code.toUpperCase();
+    try {
+      const { email, password, role, full_name, phone_number, birth_date, is_new_patient, pairing_code } = req.body;
+      
+      if (!process.env.SUPABASE_URL || process.env.SUPABASE_URL === "https://dummy.supabase.co") {
+        return res.status(500).json({ 
+          error: "Konfigurasi Database Vercel Kosong: Variabel SUPABASE_URL belum aktif di lingkungan Preview ini. Harap centang 'Preview' di pengaturan Vercel dan lakukan Redeploy tanpa cache." 
         });
-        
-        if (!doctor) {
-          return res.status(404).json({ error: "Kode pairing salah atau dokter tidak ditemukan" });
-        }
-        assignedDoctorId = doctor.user_id;
-      } else if (is_new_patient) {
-        // Pasien Baru - Least Connection
-        const { data: doctors } = await supabase.from("profiles").select("user_id").eq("role", "doctor").order('created_at', { ascending: true });
-        if (doctors && doctors.length > 0) {
-          const { data: pairings } = await supabase.from("pairings").select("doctor_id").eq("status", "active");
-          const doctorCounts = doctors.map(d => ({
-             user_id: d.user_id,
-             count: pairings?.filter(p => p.doctor_id === d.user_id).length || 0
-          }));
-          // Sort by count ascending (Least Connection). If equal, maintains original order (first doctor).
-          doctorCounts.sort((a, b) => a.count - b.count);
-          assignedDoctorId = doctorCounts[0].user_id;
+      }
+
+      // Check if email exists
+      const { data: existing } = await supabase.from("profiles").select("email").eq("email", email).single();
+      if (existing) return res.status(400).json({ error: "Email sudah terdaftar" });
+
+      let assignedDoctorId = null;
+
+      // Validate and prepare doctor assignment for patients BEFORE creating profile
+      if (role === "patient") {
+        if (!is_new_patient && pairing_code) {
+          // Pasien Lama - Validate pairing code
+          const { data: doctors } = await supabase.from("profiles").select("*").eq("role", "doctor");
+          const doctor = doctors?.find(d => {
+            const derivedCode = d.user_id.split("-")[2]?.substring(0, 4).toUpperCase();
+            return derivedCode === pairing_code.toUpperCase();
+          });
+          
+          if (!doctor) {
+            return res.status(404).json({ error: "Kode pairing salah atau dokter tidak ditemukan" });
+          }
+          assignedDoctorId = doctor.user_id;
+        } else if (is_new_patient) {
+          // Pasien Baru - Least Connection
+          const { data: doctors } = await supabase.from("profiles").select("user_id").eq("role", "doctor").order('created_at', { ascending: true });
+          if (doctors && doctors.length > 0) {
+            const { data: pairings } = await supabase.from("pairings").select("doctor_id").eq("status", "active");
+            const doctorCounts = doctors.map(d => ({
+               user_id: d.user_id,
+               count: pairings?.filter(p => p.doctor_id === d.user_id).length || 0
+            }));
+            // Sort by count ascending (Least Connection). If equal, maintains original order (first doctor).
+            doctorCounts.sort((a, b) => a.count - b.count);
+            assignedDoctorId = doctorCounts[0].user_id;
+          }
         }
       }
+
+      const user_id = `user-${generateId()}`;
+
+      // Create profile
+      const { data: newProfile, error } = await supabase.from("profiles").insert({
+        user_id, email, password, role, full_name,
+        phone_number: phone_number || "",
+        birth_date: birth_date || "",
+        is_verified: false,
+        assigned_at: new Date().toISOString()
+      }).select().single();
+
+      if (error) return res.status(500).json({ error: error.message });
+      
+      // Create pairing if doctor assigned
+      if (role === "patient" && assignedDoctorId) {
+        await supabase.from("pairings").insert({
+          id: generateId(),
+          patient_id: newProfile.user_id,
+          doctor_id: assignedDoctorId,
+          status: "active"
+        });
+      }
+
+      if (newProfile.role === "doctor") {
+        newProfile.pairing_code = newProfile.user_id.split("-")[2]?.substring(0, 4).toUpperCase();
+      }
+      
+      return res.json({ profile: newProfile });
+    } catch (err: any) {
+      console.error("Register error:", err);
+      return res.status(500).json({ error: `Gagal mendaftar akun (Error Server): ${err.message || err}` });
     }
-
-    const user_id = `user-${generateId()}`;
-
-    // Create profile
-    const { data: newProfile, error } = await supabase.from("profiles").insert({
-      user_id, email, password, role, full_name,
-      phone_number: phone_number || "",
-      birth_date: birth_date || "",
-      is_verified: false,
-      assigned_at: new Date().toISOString()
-    }).select().single();
-
-    if (error) return res.status(500).json({ error: error.message });
-    
-    // Create pairing if doctor assigned
-    if (role === "patient" && assignedDoctorId) {
-      await supabase.from("pairings").insert({
-        id: generateId(),
-        patient_id: newProfile.user_id,
-        doctor_id: assignedDoctorId,
-        status: "active"
-      });
-    }
-
-    if (newProfile.role === "doctor") {
-      newProfile.pairing_code = newProfile.user_id.split("-")[2]?.substring(0, 4).toUpperCase();
-    }
-    
-    return res.json({ profile: newProfile });
   });
 
   // Profile Update
