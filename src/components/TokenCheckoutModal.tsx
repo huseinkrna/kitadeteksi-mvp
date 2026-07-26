@@ -199,8 +199,8 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                         isSelected
                           ? "bg-amber-500/10 border-amber-500 shadow-[0_0_25px_rgba(245,158,11,0.25)] ring-2 ring-amber-400 md:scale-102 z-10"
                           : isBest
-                          ? "bg-gradient-to-br from-blue-50/50 to-indigo-50/50 border-blue-400 shadow-md hover:border-blue-600"
-                          : "bg-white border-gray-200 hover:border-gray-400 hover:bg-gray-50"
+                          ? "bg-gradient-to-br from-sky-50/60 to-indigo-50/40 border-sky-300 shadow-md hover:border-sky-400 hover:bg-sky-50"
+                          : "bg-white border-gray-200 hover:border-sky-300 hover:bg-sky-50/50"
                       }`}
                     >
                       {/* Ribbon Label (Nyoba Dulu, Paling Pas, Paling Hemat, Hemat 100 Ribu) */}
@@ -247,10 +247,10 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                         disabled={loading}
                         className={`w-full py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer ${
                           isSelected
-                            ? "bg-amber-500 text-black group-hover:bg-sky-200 group-hover:text-blue-950 hover:!bg-sky-300 shadow-md"
+                            ? "bg-amber-500 text-black group-hover:bg-sky-200 group-hover:text-slate-900 hover:!bg-sky-300 shadow-md"
                             : isBest
-                            ? "bg-blue-600 text-white group-hover:bg-sky-200 group-hover:text-blue-950 hover:!bg-sky-300 shadow-sm"
-                            : "bg-gray-100 text-gray-800 group-hover:bg-sky-200 group-hover:text-blue-950 hover:!bg-sky-300"
+                            ? "bg-sky-500 text-white group-hover:bg-sky-200 group-hover:text-slate-900 hover:!bg-sky-300 shadow-sm"
+                            : "bg-gray-100 text-gray-800 group-hover:bg-sky-200 group-hover:text-slate-900 hover:!bg-sky-300"
                         }`}
                       >
                         {loading && isSelected ? "Memproses..." : "Pilih Paket Ini"}
