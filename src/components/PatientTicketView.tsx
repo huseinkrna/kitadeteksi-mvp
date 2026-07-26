@@ -261,7 +261,7 @@ export default function PatientTicketView({ ticketId, patientId, onBack, doctorN
             <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
               <span className="text-3xl">🎉</span>
             </div>
-            <h3 className="text-xl font-black text-gray-900">Aktivasi Token Berhasil!</h3>
+            <h3 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600">Aktivasi Token Berhasil!</h3>
             <p className="text-xs text-gray-600 leading-relaxed font-medium">
               Sesi konsultasi reguler Anda bersama dokter kini telah terbuka selama <strong>24 Jam ke depan</strong>. Anda bebas mengirim pesan, melampirkan keluhan, dan berkonsultasi secara leluasa.
             </p>
