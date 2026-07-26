@@ -23,24 +23,25 @@ interface TierOption {
 const PRICING_TIERS: TierOption[] = [
   {
     id: "tier_1",
-    title: "Paket Coba-Coba",
+    title: "Cek Ombak 🌊",
     tokens: 1,
     price: 50000,
     discount: "0%",
     perToken: 50000,
-    label: "Eceran"
+    label: "Nyoba Dulu"
   },
   {
     id: "tier_2",
-    title: "Paket Decoy 3 Token",
+    title: "Curhat Santai 💬",
     tokens: 3,
     price: 142500,
     discount: "Hemat 5%",
-    perToken: 47500
+    perToken: 47500,
+    label: "Paling Pas"
   },
   {
     id: "tier_3",
-    title: "Paket Intensif 5 Token",
+    title: "Deep Talk / Healing ✨",
     tokens: 5,
     price: 217500,
     discount: "HEMAT 13%",
@@ -50,12 +51,12 @@ const PRICING_TIERS: TierOption[] = [
   },
   {
     id: "tier_4",
-    title: "Paket Perawatan 10 Token",
+    title: "Zen Master / Sultan 👑",
     tokens: 10,
     price: 400000,
     discount: "Hemat 20%",
     perToken: 40000,
-    label: "Hemat Rp 100.000!"
+    label: "Hemat Rp 100rb!"
   }
 ];
 
@@ -174,12 +175,12 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
           {step === "pricing" ? (
             <div className="space-y-6">
               {/* Info Banner */}
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
-                <Award className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div className="text-xs text-gray-700 space-y-1">
-                  <p className="font-bold text-gray-900 text-sm">Mengapa Menggunakan Token Konsultasi?</p>
-                  <p className="leading-relaxed font-medium">
-                    Setiap 1 Token memberikan akses ruang chat konsultasi bersama dokter spesialis jiwa selama <strong className="text-blue-600 font-bold">tepat 24 jam</strong>. Waktu mundur tidak langsung aktif saat dibeli, melainkan baru dimulai sejak Anda mengaktifkannya di dalam ruang chat!
+              <div className="bg-slate-800 border border-slate-700 text-slate-200 rounded-2xl p-4 flex items-start gap-3 shadow-md">
+                <Award className="w-6 h-6 text-amber-400 flex-shrink-0 mt-0.5" />
+                <div className="text-xs space-y-1">
+                  <p className="font-bold text-white text-sm">Mengapa Menggunakan Token Konsultasi?</p>
+                  <p className="leading-relaxed font-normal text-slate-300">
+                    Setiap 1 Token memberikan akses ruang chat konsultasi bersama dokter spesialis jiwa selama <span className="bg-amber-400 text-black font-extrabold px-1.5 py-0.5 rounded shadow-sm inline-block uppercase tracking-wider text-[11px]">tepat 24 jam</span>. Waktu mundur tidak langsung aktif saat dibeli, melainkan baru dimulai sejak Anda mengaktifkannya di dalam ruang chat!
                   </p>
                 </div>
               </div>
@@ -194,7 +195,7 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                     <div
                       key={tier.id}
                       onClick={() => setSelectedTier(tier)}
-                      className={`relative rounded-2xl p-5 border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                      className={`group relative rounded-2xl p-5 border-2 transition-all cursor-pointer flex flex-col justify-between ${
                         isSelected
                           ? "bg-amber-500/10 border-amber-500 shadow-[0_0_25px_rgba(245,158,11,0.25)] ring-2 ring-amber-400 md:scale-102 z-10"
                           : isBest
@@ -251,12 +252,12 @@ export default function TokenCheckoutModal({ isOpen, onClose, userId, onSuccess 
                           handleProceedToQRIS(tier);
                         }}
                         disabled={loading}
-                        className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer ${
+                        className={`w-full py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer ${
                           isSelected
-                            ? "bg-amber-500 text-black hover:bg-amber-400 shadow-md"
+                            ? "bg-amber-500 text-black group-hover:bg-sky-200 group-hover:text-blue-950 hover:!bg-sky-300 shadow-md"
                             : isBest
-                            ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
-                            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                            ? "bg-blue-600 text-white group-hover:bg-sky-200 group-hover:text-blue-950 hover:!bg-sky-300 shadow-sm"
+                            : "bg-gray-100 text-gray-800 group-hover:bg-sky-200 group-hover:text-blue-950 hover:!bg-sky-300"
                         }`}
                       >
                         {loading && isSelected ? "Memproses..." : "Pilih Paket Ini"}
