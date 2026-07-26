@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { 
   Home, Clipboard, Settings, Plus, BookOpen, Clock, 
-  MessageSquare, User, Activity, AlertCircle, Heart, ChevronRight, CheckCircle2, FileText, ShieldAlert 
+  MessageSquare, User, Activity, AlertCircle, Heart, ChevronRight, CheckCircle2, FileText, ShieldAlert, Sparkles, Coins 
 } from "lucide-react";
 import { motion } from "motion/react";
 import TrendChart from "./TrendChart";
 import JournalModal from "./JournalModal";
 import NewTicketModal from "./NewTicketModal";
+import TokenCheckoutModal from "./TokenCheckoutModal";
 import { Profile, Journal, ScreeningResult, ConsultationTicket, TicketMessage, Medication, parseRegimen } from "../types";
 
 interface PatientDashboardProps {
@@ -29,6 +30,8 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
   // Modals state
   const [isJournalOpen, setIsJournalOpen] = useState(false);
   const [isNewTicketOpen, setIsNewTicketOpen] = useState(false);
+  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
+  const [tokenBalance, setTokenBalance] = useState<number>(0);
 
   // Success messages alerts
   const [successMsg, setSuccessMsg] = useState("");
@@ -134,6 +137,11 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
       const ticketsRes = await fetch(`/api/tickets?patient_id=${profile.user_id}`);
       const ticketsData = await ticketsRes.json();
       setTickets(ticketsData.tickets || []);
+
+      // 5. Fetch wallet balance
+      const walletRes = await fetch(`/api/wallet?user_id=${profile.user_id}`);
+      const walletData = await walletRes.json();
+      setTokenBalance(walletData.wallet?.token_balance || 0);
     } catch (e) {
       console.error("Gagal memuat data dashboard pasien:", e);
     }
@@ -490,6 +498,24 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
             </div>
           </div>
 
+          {/* Dompet Token Capsule */}
+          <div className="bg-gradient-to-br from-yellow-500/15 to-amber-500/25 p-4 rounded-xl border border-yellow-500/40 flex items-center justify-between shadow-lg">
+            <div>
+              <span className="text-[10px] text-yellow-400 font-mono block uppercase font-bold flex items-center gap-1">
+                <Coins className="w-3.5 h-3.5" /> Dompet Token
+              </span>
+              <h4 className="text-base font-black text-white mt-0.5 font-sans">
+                {tokenBalance} <span className="text-xs font-normal text-gray-300">Token</span>
+              </h4>
+            </div>
+            <button
+              onClick={() => setIsTokenModalOpen(true)}
+              className="px-3.5 py-1.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-extrabold rounded-lg text-xs transition-all shadow-md cursor-pointer uppercase tracking-wider"
+            >
+              + Top Up
+            </button>
+          </div>
+
           {/* Quick Actions buttons */}
           <div className="space-y-2.5">
             <button
@@ -662,7 +688,18 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
                     </div>
                   </div>
 
-                  <div className="pt-2">
+                  <div className="pt-2 space-y-3">
+                    <div className="flex items-center justify-between bg-black/30 px-4 py-2 rounded-xl border border-white/5 text-xs">
+                      <span className="text-gray-400 flex items-center gap-1.5 font-mono">
+                        <Coins className="w-4 h-4 text-yellow-400" /> Saldo Token Konsultasi: <strong className="text-white font-sans">{tokenBalance} Token</strong>
+                      </span>
+                      <button
+                        onClick={() => setIsTokenModalOpen(true)}
+                        className="text-[11px] text-yellow-400 font-bold underline hover:text-yellow-300 cursor-pointer"
+                      >
+                        + Beli Token
+                      </button>
+                    </div>
                     <button
                       onClick={handleOpenChatRoom}
                       disabled={!doctor || !profile.is_verified}
@@ -1001,6 +1038,17 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
         </button>
       </div>
 
+      {/* Token Checkout Modal */}
+      <TokenCheckoutModal
+        isOpen={isTokenModalOpen}
+        onClose={() => setIsTokenModalOpen(false)}
+        userId={profile.user_id}
+        onSuccess={(tokensAdded, newBalance) => {
+          setTokenBalance(newBalance);
+          setSuccessMsg(`Berhasil Top Up ${tokensAdded} Token! Saldo sekarang: ${newBalance} Token.`);
+          setTimeout(() => setSuccessMsg(""), 5000);
+        }}
+      />
     </div>
   );
 }

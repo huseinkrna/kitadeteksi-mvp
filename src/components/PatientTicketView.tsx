@@ -128,6 +128,47 @@ export default function PatientTicketView({ ticketId, patientId, onBack, doctorN
         </span>
       </div>
 
+      {/* 24-Hour Consultation Session Activation Bar */}
+      <div className="bg-gradient-to-r from-yellow-500/10 via-amber-500/20 to-yellow-500/10 border-x border-b border-yellow-500/30 px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0">
+        <div className="flex items-center gap-2 text-xs text-yellow-200">
+          <Clock className="w-4 h-4 text-yellow-400 flex-shrink-0 animate-pulse" />
+          <span>
+            Sesi konsultasi reguler membutuhkan <strong>1 Token / 24 Jam</strong>. (Kasus darurat medis tetap 100% gratis & tanpa halangan).
+          </span>
+        </div>
+        <button
+          onClick={async () => {
+            try {
+              const res = await fetch("/api/consultation/activate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  patient_id: patientId,
+                  doctor_id: ticket.doctor_id || patientId,
+                  ticket_id: ticketId
+                })
+              });
+              const data = await res.json();
+              if (!res.ok) {
+                if (data.insufficient_tokens) {
+                  alert("Saldo Token tidak mencukupi! Silakan kembali ke Beranda untuk Top Up Token di Dompet Anda.");
+                } else {
+                  alert(data.error || "Gagal mengaktifkan konsultasi.");
+                }
+              } else {
+                alert(data.message);
+                fetchTicketDetails();
+              }
+            } catch (e: any) {
+              alert("Error: " + e.message);
+            }
+          }}
+          className="px-4 py-1.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-extrabold rounded-full text-[11px] transition-all shadow-md cursor-pointer flex-shrink-0 uppercase tracking-wider whitespace-nowrap"
+        >
+          ⚡ Aktifkan Sesi 24 Jam (1 Token)
+        </button>
+      </div>
+
       {/* Messages Thread Container */}
       <div className="flex-1 bg-surface-sunken border-x border-white/10 overflow-y-auto p-6 space-y-4">
         {messages.filter(m => !m.content.includes("[SISTEM TRIAGE DARURAT]")).length === 0 ? (

@@ -528,13 +528,53 @@ app.use(express.json());
     const { data: journals } = await supabase.from("journals").select("*").eq("patient_id", ticket.patient_id).order("created_at", { ascending: false }).limit(3);
     const { data: screenings } = await supabase.from("screenings").select("*").eq("patient_id", ticket.patient_id).order("created_at", { ascending: false });
 
-    return res.json({ ticket, messages, patient: { profile, journals, screenings } });
+    // Cek sesi konsultasi aktif 24 jam
+    const { data: sessions } = await supabase.from("chat_sessions")
+      .select("*")
+      .eq("patient_id", ticket.patient_id)
+      .eq("doctor_id", ticket.doctor_id)
+      .eq("is_active", true)
+      .order("expires_at", { ascending: false });
+
+    const activeSession = sessions && sessions.length > 0 ? sessions[0] : null;
+    const isSessionActive = activeSession && new Date(activeSession.expires_at).getTime() > Date.now();
+
+    return res.json({ ticket, messages, patient: { profile, journals, screenings }, activeSession: isSessionActive ? activeSession : null, isSessionActive });
   });
 
   // Tickets: Message
   app.post("/api/tickets/:id/message", async (req, res) => {
     const ticketId = req.params.id;
     const { sender_id, message_payload } = req.body;
+
+    // Gatekeeper Token Konsultasi 24 Jam: Periksa tiket
+    const { data: ticket } = await supabase.from("tickets").select("*").eq("id", ticketId).single();
+    if (!ticket) return res.status(404).json({ error: "Tiket tidak ditemukan" });
+
+    // Jika bukan darurat medis (escalated / unassigned_emergency), wajib punya sesi konsultasi 24 jam yang aktif
+    const isEmergency = ticket.status === "escalated" || ticket.status === "unassigned_emergency";
+    if (!isEmergency) {
+      const { data: sessions } = await supabase.from("chat_sessions")
+        .select("*")
+        .eq("patient_id", ticket.patient_id)
+        .eq("doctor_id", ticket.doctor_id)
+        .eq("is_active", true)
+        .order("expires_at", { ascending: false });
+
+      const activeSession = sessions && sessions.length > 0 ? sessions[0] : null;
+      const isExpired = !activeSession || new Date(activeSession.expires_at).getTime() <= Date.now();
+
+      if (isExpired) {
+        return res.status(403).json({
+          error: "Sesi konsultasi 24 jam belum aktif atau sudah berakhir. Gunakan 1 Token untuk memulai konsultasi.",
+          session_required: true,
+          ticket_id: ticketId,
+          patient_id: ticket.patient_id,
+          doctor_id: ticket.doctor_id
+        });
+      }
+    }
+
     const { data: message } = await supabase.from("ticket_messages").insert({
       id: generateId(), ticket_id: ticketId, sender_id, content: message_payload
     }).select().single();
@@ -728,6 +768,163 @@ app.use(express.json());
     } catch(e) {
       res.status(500).json({ error: "Internal server error" });
     }
+  });
+
+  // --- MONETIZATION & TOKEN SYSTEM (POIN 9-13) ---
+  // 1. Get Wallet Balance
+  app.get("/api/wallet", async (req, res) => {
+    const user_id = req.query.user_id as string;
+    if (!user_id) return res.status(400).json({ error: "user_id diperlukan" });
+
+    let { data: wallet } = await supabase.from("wallets").select("*").eq("user_id", user_id).single();
+    if (!wallet) {
+      const { data: newWallet, error } = await supabase.from("wallets").insert({
+        user_id,
+        token_balance: 0,
+        updated_at: new Date().toISOString()
+      }).select().single();
+      if (error && !error.message.includes("duplicate")) return res.status(500).json({ error: error.message });
+      wallet = newWallet || { user_id, token_balance: 0 };
+    }
+    return res.json({ wallet });
+  });
+
+  // 2. Get Transaction History
+  app.get("/api/transactions", async (req, res) => {
+    const user_id = req.query.user_id as string;
+    if (!user_id) return res.status(400).json({ error: "user_id diperlukan" });
+
+    const { data: transactions } = await supabase.from("transactions")
+      .select("*")
+      .eq("user_id", user_id)
+      .order("created_at", { ascending: false });
+    return res.json({ transactions: transactions || [] });
+  });
+
+  // 3. Checkout Token (Dummy QRIS Interaktif / Escape Hatch)
+  app.post("/api/payment/checkout-dummy", async (req, res) => {
+    const { user_id, tier_id } = req.body;
+    if (!user_id || !tier_id) return res.status(400).json({ error: "user_id dan tier_id wajib diisi" });
+
+    const pricingMap: Record<string, { tokens: number; amount: number; label: string }> = {
+      "tier_1": { tokens: 1, amount: 50000, label: "Paket Coba-Coba" },
+      "tier_2": { tokens: 3, amount: 142500, label: "Paket Decoy 3 Token" },
+      "tier_3": { tokens: 5, amount: 217500, label: "Best Seller (5 Token)" },
+      "tier_4": { tokens: 10, amount: 400000, label: "Paket Intensif (10 Token)" }
+    };
+
+    const selectedTier = pricingMap[tier_id];
+    if (!selectedTier) return res.status(400).json({ error: "Tier penawaran tidak valid" });
+
+    const order_id = `ORD-DUMMY-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+    const { data: transaction, error } = await supabase.from("transactions").insert({
+      order_id,
+      user_id,
+      gross_amount: selectedTier.amount,
+      tokens_added: selectedTier.tokens,
+      status: "pending",
+      payment_url: `/checkout/qris-simulate?order_id=${order_id}`,
+      created_at: new Date().toISOString()
+    }).select().single();
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.json({ success: true, transaction, tier: selectedTier });
+  });
+
+  // 4. Simulate Payment Success (Escape Hatch: Tombol "Simulasikan Pembayaran Berhasil")
+  app.post("/api/payment/simulate-success", async (req, res) => {
+    const { order_id } = req.body;
+    if (!order_id) return res.status(400).json({ error: "order_id wajib diisi" });
+
+    const { data: transaction } = await supabase.from("transactions").select("*").eq("order_id", order_id).single();
+    if (!transaction) return res.status(404).json({ error: "Transaksi tidak ditemukan" });
+
+    if (transaction.status === "settled") {
+      return res.json({ success: true, message: "Transaksi sudah berhasil sebelumnya", transaction });
+    }
+
+    const { data: updatedTx } = await supabase.from("transactions")
+      .update({ status: "settled" })
+      .eq("order_id", order_id)
+      .select()
+      .single();
+
+    let { data: wallet } = await supabase.from("wallets").select("*").eq("user_id", transaction.user_id).single();
+    if (!wallet) {
+      const { data: newW } = await supabase.from("wallets").insert({
+        user_id: transaction.user_id,
+        token_balance: transaction.tokens_added,
+        updated_at: new Date().toISOString()
+      }).select().single();
+      wallet = newW;
+    } else {
+      const newBalance = (wallet.token_balance || 0) + (transaction.tokens_added || 0);
+      const { data: updatedW } = await supabase.from("wallets")
+        .update({ token_balance: newBalance, updated_at: new Date().toISOString() })
+        .eq("user_id", transaction.user_id)
+        .select()
+        .single();
+      wallet = updatedW;
+    }
+
+    return res.json({ success: true, message: "Simulasi pembayaran berhasil! Token telah ditambahkan.", transaction: updatedTx, wallet });
+  });
+
+  // 5. Activate 24-Hour Consultation Session (Potong 1 Token)
+  app.post("/api/consultation/activate", async (req, res) => {
+    const { patient_id, doctor_id, ticket_id } = req.body;
+    if (!patient_id || !doctor_id) return res.status(400).json({ error: "patient_id dan doctor_id wajib diisi" });
+
+    const { data: existingSessions } = await supabase.from("chat_sessions")
+      .select("*")
+      .eq("patient_id", patient_id)
+      .eq("doctor_id", doctor_id)
+      .eq("is_active", true)
+      .order("expires_at", { ascending: false });
+
+    const activeSession = existingSessions && existingSessions.length > 0 ? existingSessions[0] : null;
+    if (activeSession && new Date(activeSession.expires_at).getTime() > Date.now()) {
+      return res.json({ success: true, message: "Sesi konsultasi 24 jam masih aktif", session: activeSession });
+    }
+
+    const { data: wallet } = await supabase.from("wallets").select("*").eq("user_id", patient_id).single();
+    if (!wallet || (wallet.token_balance || 0) < 1) {
+      return res.status(403).json({
+        error: "Saldo token tidak mencukupi untuk memulai sesi konsultasi. Silakan top up token terlebih dahulu.",
+        insufficient_tokens: true
+      });
+    }
+
+    const newBalance = wallet.token_balance - 1;
+    await supabase.from("wallets").update({ token_balance: newBalance, updated_at: new Date().toISOString() }).eq("user_id", patient_id);
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 Jam
+    const sessionId = `chat-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+
+    const { data: newSession, error: sessionErr } = await supabase.from("chat_sessions").insert({
+      id: sessionId,
+      patient_id,
+      doctor_id,
+      started_at: now.toISOString(),
+      expires_at: expiresAt.toISOString(),
+      is_active: true
+    }).select().single();
+
+    if (sessionErr) return res.status(500).json({ error: sessionErr.message });
+
+    if (ticket_id) {
+      await supabase.from("ticket_messages").insert({
+        id: generateId(),
+        ticket_id,
+        sender_id: patient_id,
+        content: `[SISTEM]: Token Konsultasi 24 Jam diaktifkan! Ruang chat konsultasi kini terbuka hingga ${expiresAt.toLocaleString("id-ID")}.`,
+        is_ai_summary: true
+      });
+    }
+
+    return res.json({ success: true, message: "Sesi konsultasi 24 jam berhasil diaktifkan!", session: newSession, remaining_tokens: newBalance });
   });
 
   // --- VITE MIDDLEWARE ---
