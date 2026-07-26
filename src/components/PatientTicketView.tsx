@@ -16,6 +16,8 @@ export default function PatientTicketView({ ticketId, patientId, onBack, doctorN
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [activeSession, setActiveSession] = useState<{ is_active: boolean; session: any } | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const messageEndRef = useRef<HTMLDivElement>(null);
 
@@ -31,6 +33,13 @@ export default function PatientTicketView({ ticketId, patientId, onBack, doctorN
 
       setTicket(data.ticket);
       setMessages(data.messages || []);
+
+      if (data.ticket) {
+        const doctorId = data.ticket.doctor_id || patientId;
+        const statusRes = await fetch(`/api/consultation/status?patient_id=${patientId}&doctor_id=${doctorId}`);
+        const statusData = await statusRes.json();
+        setActiveSession(statusData);
+      }
     } catch (e: any) {
       setError(e.message || "Gagal menghubungkan ke server");
     } finally {
@@ -129,45 +138,59 @@ export default function PatientTicketView({ ticketId, patientId, onBack, doctorN
       </div>
 
       {/* 24-Hour Consultation Session Activation Bar */}
-      <div className="bg-gradient-to-r from-yellow-500/10 via-amber-500/20 to-yellow-500/10 border-x border-b border-yellow-500/30 px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0">
-        <div className="flex items-center gap-2 text-xs text-yellow-200">
-          <Clock className="w-4 h-4 text-yellow-400 flex-shrink-0 animate-pulse" />
-          <span>
-            Sesi konsultasi reguler membutuhkan <strong>1 Token / 24 Jam</strong>. (Kasus darurat medis tetap 100% gratis & tanpa halangan).
+      {activeSession?.is_active ? (
+        <div className="bg-slate-900 border-2 border-green-500 rounded-b-2xl px-6 py-4 flex items-center justify-between gap-3 flex-shrink-0 shadow-lg my-1">
+          <div className="flex items-center gap-2.5 text-xs md:text-sm font-extrabold text-white">
+            <span className="w-3 h-3 rounded-full bg-green-500 animate-ping flex-shrink-0" />
+            <span>
+              ✅ Sesi Konsultasi 24 Jam Aktif (Berakhir pada: <strong className="text-green-400 font-mono underline font-black">{new Date(activeSession.session.expires_at).toLocaleString("id-ID", { dateStyle: "short", timeStyle: "short" })}</strong>)
+            </span>
+          </div>
+          <span className="bg-green-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+            AKSES TEKS TERBUKA
           </span>
         </div>
-        <button
-          onClick={async () => {
-            try {
-              const res = await fetch("/api/consultation/activate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  patient_id: patientId,
-                  doctor_id: ticket.doctor_id || patientId,
-                  ticket_id: ticketId
-                })
-              });
-              const data = await res.json();
-              if (!res.ok) {
-                if (data.insufficient_tokens) {
-                  alert("Saldo Token tidak mencukupi! Silakan kembali ke Beranda untuk Top Up Token di Dompet Anda.");
+      ) : (
+        <div className="bg-slate-900 border-2 border-amber-500 rounded-b-2xl px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 flex-shrink-0 shadow-lg my-1">
+          <div className="flex items-center gap-3 text-xs md:text-sm font-extrabold text-white">
+            <Clock className="w-5 h-5 text-amber-400 flex-shrink-0 animate-pulse" />
+            <span className="leading-relaxed">
+              Sesi konsultasi reguler membutuhkan <span className="bg-amber-400 text-black px-2 py-0.5 rounded font-black uppercase tracking-wider text-xs shadow-sm mx-1 inline-block">1 Token / 24 Jam</span>. (Kasus darurat medis tetap 100% gratis & tanpa halangan).
+            </span>
+          </div>
+          <button
+            onClick={async () => {
+              try {
+                const res = await fetch("/api/consultation/activate", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    patient_id: patientId,
+                    doctor_id: ticket.doctor_id || patientId,
+                    ticket_id: ticketId
+                  })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                  if (data.insufficient_tokens) {
+                    alert("Saldo Token tidak mencukupi! Silakan kembali ke Beranda untuk Top Up Token di Dompet Anda.");
+                  } else {
+                    alert(data.error || "Gagal mengaktifkan konsultasi.");
+                  }
                 } else {
-                  alert(data.error || "Gagal mengaktifkan konsultasi.");
+                  setShowSuccessPopup(true);
+                  fetchTicketDetails();
                 }
-              } else {
-                alert(data.message);
-                fetchTicketDetails();
+              } catch (e: any) {
+                alert("Error: " + e.message);
               }
-            } catch (e: any) {
-              alert("Error: " + e.message);
-            }
-          }}
-          className="px-4 py-1.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black font-extrabold rounded-full text-[11px] transition-all shadow-md cursor-pointer flex-shrink-0 uppercase tracking-wider whitespace-nowrap"
-        >
-          ⚡ Aktifkan Sesi 24 Jam (1 Token)
-        </button>
-      </div>
+            }}
+            className="px-5 py-2.5 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-500 hover:from-yellow-300 hover:to-amber-400 text-black font-black rounded-xl text-xs transition-all shadow-[0_0_15px_rgba(245,158,11,0.4)] cursor-pointer flex-shrink-0 uppercase tracking-wider whitespace-nowrap"
+          >
+            ⚡ Aktifkan Sesi 24 Jam (1 Token)
+          </button>
+        </div>
+      )}
 
       {/* Messages Thread Container */}
       <div className="flex-1 bg-surface-sunken border-x border-white/10 overflow-y-auto p-6 space-y-4">
@@ -230,6 +253,27 @@ export default function PatientTicketView({ ticketId, patientId, onBack, doctorN
           Kirim
         </button>
       </form>
+
+      {/* Success Activation Popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white border-2 border-green-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl space-y-4">
+            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+              <span className="text-3xl">🎉</span>
+            </div>
+            <h3 className="text-xl font-black text-gray-900">Aktivasi Token Berhasil!</h3>
+            <p className="text-xs text-gray-600 leading-relaxed font-medium">
+              Sesi konsultasi reguler Anda bersama dokter kini telah terbuka selama <strong>24 Jam ke depan</strong>. Anda bebas mengirim pesan, melampirkan keluhan, dan berkonsultasi secara leluasa.
+            </p>
+            <button
+              onClick={() => setShowSuccessPopup(false)}
+              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-extrabold rounded-2xl text-sm transition-all shadow-md cursor-pointer uppercase tracking-wider"
+            >
+              Mulai Konsultasi Sekarang
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
