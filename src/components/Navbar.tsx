@@ -11,13 +11,13 @@ export default function Navbar({ profile, onLogout }: NavbarProps) {
     <header className="w-full bg-deepspace border-b border-white/5 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-md">
       <div className="flex items-center gap-3">
         <img 
-          src="/logo.svg" 
+          src="/RUANGTARA.svg" 
           className="h-10 rounded-lg border border-white/5 shadow-md" 
-          alt="KITADETEKSI Logo" 
+          alt="RUANGTARA Logo" 
         />
         <div className="hidden sm:block">
           <span className="text-[10px] text-gray-400 font-mono tracking-wider block">
-            SISTEM PENAPISAN TELEMEDICINE ASINKRON
+            DEMOCRATIZING MENTAL HEALTHCARE THROUGH AI CO-PILOT
           </span>
         </div>
       </div>

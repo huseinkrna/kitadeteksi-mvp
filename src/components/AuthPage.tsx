@@ -124,7 +124,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
   };
 
   const handleQuickLogin = (roleType: "patient" | "doctor" | "developer") => {
-    const demoEmail = roleType === "doctor" ? "doctor@kitadeteksi.com" : roleType === "developer" ? "developer@kitadeteksi.com" : "budi@kitadeteksi.com";
+    const demoEmail = roleType === "doctor" ? "doctor@ruangtara.com" : roleType === "developer" ? "developer@ruangtara.com" : "budi@ruangtara.com";
     const demoPassword = "password";
     
     setEmail(demoEmail);
@@ -167,13 +167,13 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-3">
             <img 
-              src="/logo.svg" 
+              src="/RUANGTARA.svg" 
               className="h-20 rounded-xl shadow-lg border border-white/5 transition-transform hover:scale-105" 
-              alt="KITADETEKSI Logo" 
+              alt="RUANGTARA Logo" 
             />
           </div>
           <p className="text-xs text-nebula font-mono uppercase tracking-widest mt-2">
-            Kita Bantu Deteksi Gejala
+            Democratizing Mental Healthcare Through AI Co-Pilot
           </p>
         </div>
 
@@ -208,8 +208,8 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
               </h3>
               <p className="text-xs text-gray-400 mt-2 font-sans leading-relaxed">
                 {unverifiedProfile?.role === 'doctor' 
-                  ? "Sesuai dengan protokol KITADETEKSI, akun dokter baru wajib melalui proses verifikasi oleh Developer Super Admin untuk memastikan kredensial."
-                  : "Sesuai dengan protokol klinis KITADETEKSI, akun pasien baru wajib melalui proses verifikasi dokter pengawas terlebih dahulu untuk memastikan legalitas dan keselamatan asinkronous medis."
+                  ? "Sesuai dengan protokol RUANGTARA, akun dokter baru wajib melalui proses verifikasi oleh Developer Super Admin untuk memastikan kredensial."
+                  : "Sesuai dengan protokol klinis RUANGTARA, akun pasien baru wajib melalui proses verifikasi dokter pengawas terlebih dahulu untuk memastikan legalitas dan keselamatan asinkronous medis."
                 }
               </p>
             </div>

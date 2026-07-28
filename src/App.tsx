@@ -25,7 +25,7 @@ export default function App() {
 
   // Load user session from local storage on mount
   useEffect(() => {
-    const cached = localStorage.getItem("kitadeteksi_session");
+    const cached = localStorage.getItem("ruangtara_session") || localStorage.getItem("kitadeteksi_session");
     if (cached) {
       try {
         const profile = JSON.parse(cached);
@@ -64,7 +64,7 @@ export default function App() {
           if (data.is_verified !== undefined && data.is_verified !== user.is_verified) {
             const updatedUser = { ...user, is_verified: data.is_verified };
             setUser(updatedUser);
-            localStorage.setItem("kitadeteksi_session", JSON.stringify(updatedUser));
+            localStorage.setItem("ruangtara_session", JSON.stringify(updatedUser));
           }
         } else if (user.role === "doctor" && !user.is_verified) {
           const res = await fetch(`/api/profile/status?user_id=${user.user_id}`);
@@ -72,7 +72,7 @@ export default function App() {
           if (data.is_verified === true) {
             const updatedUser = { ...user, is_verified: true };
             setUser(updatedUser);
-            localStorage.setItem("kitadeteksi_session", JSON.stringify(updatedUser));
+            localStorage.setItem("ruangtara_session", JSON.stringify(updatedUser));
           }
         }
       } catch (e) {
@@ -88,7 +88,7 @@ export default function App() {
   // Handle successful login/registration
   const handleAuthSuccess = (profile: Profile) => {
     setUser(profile);
-    localStorage.setItem("kitadeteksi_session", JSON.stringify(profile));
+    localStorage.setItem("ruangtara_session", JSON.stringify(profile));
     setActivePage("dashboard");
   };
 
@@ -99,6 +99,7 @@ export default function App() {
     setActivePage("dashboard");
     setSelectedTicketId(null);
     setIsCritical(false);
+    localStorage.removeItem("ruangtara_session");
     localStorage.removeItem("kitadeteksi_session");
   };
 
@@ -134,7 +135,7 @@ export default function App() {
         <div className="bg-surface-card border border-white/10 p-8 rounded-2xl max-w-md shadow-2xl glow-nebula-sm">
           <h2 className="text-2xl font-bold text-gray-100 mb-4 tracking-tight">Menunggu Verifikasi Admin</h2>
           <p className="text-gray-400 mb-6 leading-relaxed text-sm">
-            Akun Psikiater Anda telah berhasil didaftarkan ke sistem KITADETEKSI.<br/><br/>
+            Akun Psikiater Anda telah berhasil didaftarkan ke sistem RUANGTARA.<br/><br/>
             Sesuai protokol keamanan dan validasi lisensi medis, akun Anda harus diverifikasi oleh Super Admin (Developer) sebelum Anda dapat mengakses Dashboard Klinis dan mulai menerima pasien.
           </p>
           <div className="flex flex-col gap-3">

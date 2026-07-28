@@ -11,10 +11,10 @@ export default defineConfig(() => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['logo.svg'],
+        includeAssets: ['RUANGTARA.svg', 'logo.svg'],
         manifest: {
-          name: 'KITADETEKSI - Tele-Psikiatri',
-          short_name: 'KITADETEKSI',
+          name: 'RUANGTARA - Democratizing Mental Healthcare Through AI Co-Pilot',
+          short_name: 'RUANGTARA',
           description: 'Aplikasi Skrining & Pemantauan Kesehatan Mental',
           theme_color: '#0f172a',
           background_color: '#0f172a',
@@ -22,7 +22,7 @@ export default defineConfig(() => {
           orientation: 'portrait',
           icons: [
             {
-              src: 'logo.svg',
+              src: 'RUANGTARA.svg',
               sizes: '192x192 512x512',
               type: 'image/svg+xml',
               purpose: 'any maskable'

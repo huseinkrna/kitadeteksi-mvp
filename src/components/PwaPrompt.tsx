@@ -56,7 +56,7 @@ export default function PwaPrompt() {
           <div className="bg-surface-card border border-nebula/30 p-4 rounded-2xl shadow-[0_0_20px_rgba(14,165,233,0.3)] flex items-center justify-between gap-4">
             <div className="flex flex-col">
               <span className="text-sm font-bold text-gray-100 font-sans">Install Aplikasi</span>
-              <span className="text-xs text-gray-400 font-sans">Tambahkan KITADETEKSI ke layar utama Anda untuk akses lebih cepat.</span>
+              <span className="text-xs text-gray-400 font-sans">Tambahkan RUANGTARA ke layar utama Anda untuk akses lebih cepat.</span>
             </div>
             <div className="flex items-center gap-2">
               <button

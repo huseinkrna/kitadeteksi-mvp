@@ -4,11 +4,11 @@ self.addEventListener("push", (event) => {
     data = event.data.json();
   }
 
-  const title = data.title || "KITADETEKSI Notification";
+  const title = data.title || "RUANGTARA Notification";
   const options = {
     body: data.body || "Ada pembaruan baru dari sistem skrining.",
-    icon: data.icon || "/logo.svg",
-    badge: "/logo.svg",
+    icon: data.icon || "/RUANGTARA.svg",
+    badge: "/RUANGTARA.svg",
   };
 
   event.waitUntil(self.registration.showNotification(title, options));

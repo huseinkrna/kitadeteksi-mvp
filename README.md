@@ -1,6 +1,6 @@
-# KITADETEKSI - Sistem Pendeteksi Dini & Konsultasi Psikologis
+# RUANGTARA - Democratizing Mental Healthcare Through AI Co-Pilot
 
-KITADETEKSI adalah platform kesehatan mental terintegrasi yang menghubungkan pasien dengan dokter pengawas. Platform ini menyediakan fitur penapisan psikologis (DASS-21, PHQ-9, GAD-7) dan jurnal harian yang didukung oleh analisis sentimen berbasis AI (Groq & Gemini).
+RUANGTARA adalah platform kesehatan mental terintegrasi yang menghubungkan pasien dengan dokter pengawas. Platform ini menyediakan fitur penapisan psikologis (DASS-21, PHQ-9, GAD-7) dan jurnal harian yang didukung oleh analisis sentimen berbasis AI (Groq & Gemini).
 
 ## 🚀 Fitur Utama
 - **Penapisan Psikologis**: Cek kondisi mental menggunakan instrumen standar medis.
@@ -18,8 +18,8 @@ KITADETEKSI adalah platform kesehatan mental terintegrasi yang menghubungkan pas
 
 1. **Clone repository ini**
    ```bash
-   git clone https://github.com/huseinkrna/kitadeteksi-mvp.git
-   cd kitadeteksi-mvp
+   git clone https://github.com/huseinkrna/ruangtara-mvp.git
+   cd ruangtara-mvp
    ```
 
 2. **Install Dependensi**

@@ -20,7 +20,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || "dummy_key" });
 // VAPID Configuration for Web Push Notifications
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    'mailto:developer@kitadeteksi.com',
+    'mailto:developer@ruangtara.com',
     process.env.VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   );
@@ -96,7 +96,7 @@ app.use(express.json());
     try {
       const { email, password } = req.body;
       
-      const devEmail = "hasanhusein@kitadeteksi.com";
+      const devEmail = "hasanhusein@ruangtara.com";
       const devPassword = "goyangduluser";
       
       if (email?.trim().toLowerCase() === devEmail && password?.trim() === devPassword) {
@@ -472,7 +472,7 @@ app.use(express.json());
           // WhatsApp Notification (Menit ke-0: Hanya ke Dokter Penanggung Jawab)
           const { data: doctorProfile } = await supabase.from("profiles").select("phone_number").eq("user_id", pairing.doctor_id).single();
           const { data: patientProfile } = await supabase.from("profiles").select("full_name").eq("user_id", patient_id).single();
-          const waMessage = `🚨 DARURAT (Pasien: ${patientProfile?.full_name || "Tanpa Nama"})\n\nEvaluasi AI: ${ai_analysis}\n\nAmbil alih: https://kitadeteksi-mvp.vercel.app/dashboard/triage/bypass/${ticketId}`;
+          const waMessage = `🚨 DARURAT (Pasien: ${patientProfile?.full_name || "Tanpa Nama"})\n\nEvaluasi AI: ${ai_analysis}\n\nAmbil alih: https://ruangtara-mvp.vercel.app/dashboard/triage/bypass/${ticketId}`;
           
           if (doctorProfile && doctorProfile.phone_number) {
              await sendWhatsAppFonnte(doctorProfile.phone_number, waMessage);
@@ -618,7 +618,7 @@ app.use(express.json());
            const payload = JSON.stringify({
               title: `Pesan Baru dari ${senderProfile?.full_name || "Pengguna"}`,
               body: textMsg,
-              icon: "/logo.svg"
+              icon: "/RUANGTARA.svg"
            });
            try {
              await webpush.sendNotification(recipientProfile.push_subscription, payload);
@@ -690,7 +690,7 @@ app.use(express.json());
              if (waitTime > THIRTY_MINUTES && ticket.status === "escalated") {
                 // Change ticket status to 'unassigned_emergency' and blast WA!
                 await supabase.from("tickets").update({ status: "unassigned_emergency" }).eq("id", ticket.id);
-                const waMessage = `🚨 DARURAT (Pasien: ${p.full_name})\n\nEvaluasi AI: Pasien kritis SLA terlewati, segera intervensi!\n\nAmbil alih: https://kitadeteksi-mvp.vercel.app/dashboard/triage/bypass/${ticket.id}`;
+                const waMessage = `🚨 DARURAT (Pasien: ${p.full_name})\n\nEvaluasi AI: Pasien kritis SLA terlewati, segera intervensi!\n\nAmbil alih: https://ruangtara-mvp.vercel.app/dashboard/triage/bypass/${ticket.id}`;
                 console.log(waMessage);
                 
                 // Cari nomor HP dokter-dokter spesialis untuk diblast
@@ -774,8 +774,8 @@ app.use(express.json());
           if (p.push_subscription) {
             const payload = JSON.stringify({
               title: "Selamat Pagi, Waktunya Jurnal! 🌅",
-              body: `Halo ${p.full_name}, yuk ceritakan apa yang sedang kamu pikirkan atau rasakan pagi ini di KITADETEKSI.`,
-              icon: "/logo.svg"
+              body: `Halo ${p.full_name}, yuk ceritakan apa yang sedang kamu pikirkan atau rasakan pagi ini di RUANGTARA.`,
+              icon: "/RUANGTARA.svg"
             });
             try {
               await webpush.sendNotification(p.push_subscription, payload);
@@ -947,6 +947,29 @@ app.use(express.json());
     }
 
     return res.json({ success: true, message: "Sesi konsultasi 24 jam berhasil diaktifkan!", session: newSession, remaining_tokens: newBalance });
+  });
+
+  // 6. Check Active Consultation Status
+  app.get("/api/consultation/status", async (req, res) => {
+    try {
+      const { patient_id, doctor_id } = req.query;
+      if (!patient_id || !doctor_id) return res.status(400).json({ error: "patient_id dan doctor_id wajib diisi" });
+
+      const { data: existingSessions } = await supabase.from("chat_sessions")
+        .select("*")
+        .eq("patient_id", patient_id as string)
+        .eq("doctor_id", doctor_id as string)
+        .eq("is_active", true)
+        .order("expires_at", { ascending: false });
+
+      const activeSession = existingSessions && existingSessions.length > 0 ? existingSessions[0] : null;
+      if (activeSession && new Date(activeSession.expires_at).getTime() > Date.now()) {
+        return res.json({ is_active: true, session: activeSession });
+      }
+      return res.json({ is_active: false, session: null });
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message || "Error checking session" });
+    }
   });
 
   // --- VITE MIDDLEWARE ---

@@ -39,7 +39,7 @@ export default function DeveloperDashboard({ profile }: DeveloperDashboardProps)
               <Database className="w-8 h-8 text-nebula" />
               Developer Super Admin
             </h1>
-            <p className="text-slate-400 mt-1">Sistem Pemantauan Global KITADETEKSI</p>
+            <p className="text-slate-400 mt-1">Sistem Pemantauan Global RUANGTARA</p>
           </div>
           <button 
             onClick={fetchAllData}

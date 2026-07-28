@@ -1,5 +1,5 @@
 /**
- * Clinical Scoring and Severity Mapping Engines for KITADETEKSI
+ * Clinical Scoring and Severity Mapping Engines for RUANGTARA
  * Pure functions only.
  */
 

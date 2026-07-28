@@ -360,7 +360,7 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
     printWindow.document.write(`
       <html>
         <head>
-          <title>Resume Medis Pasien - KITADETEKSI</title>
+          <title>Resume Medis Pasien - RUANGTARA</title>
           <style>
             body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 40px; line-height: 1.5; background-color: #ffffff; }
             .header { border-bottom: 3px double #cbd5e1; padding-bottom: 20px; margin-bottom: 30px; text-align: center; }
@@ -386,9 +386,9 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
           </div>
 
           <div class="header">
-            <img src="/logo.svg" style="height: 60px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" alt="KITADETEKSI Logo" />
-            <div class="brand">RUMAH SAKIT MITRA DETEKSI JIWA</div>
-            <div class="subtitle">Platform Skrining & Tele-Psikiatri Asinkron "KITADETEKSI"</div>
+            <img src="/RUANGTARA.svg" style="height: 60px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" alt="RUANGTARA Logo" />
+            <div class="brand">RUMAH SAKIT MITRA RUANGTARA</div>
+            <div class="subtitle">Democratizing Mental Healthcare Through AI Co-Pilot</div>
             <div style="font-size: 12px; margin-top: 10px; color: #334155; font-weight: 500;">LAPORAN RESUME RESMI PENUNJANG KLINIS</div>
           </div>
 
@@ -437,7 +437,7 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
           </div>
 
           <div class="footer">
-            <span>Dihasilkan secara otomatis oleh sistem KITADETEKSI. Dokumen ini sah dan diakui secara klinis.</span>
+            <span>Dihasilkan secara otomatis oleh sistem RUANGTARA. Dokumen ini sah dan diakui secara klinis.</span>
             <span>Halaman 1 dari 1</span>
           </div>
         </body>
