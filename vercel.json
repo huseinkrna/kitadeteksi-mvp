@@ -1,4 +1,14 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/morning-journal",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/sla-check",
+      "schedule": "*/30 * * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",

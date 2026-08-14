@@ -23,6 +23,8 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isNewPatient, setIsNewPatient] = useState(true);
   const [pairingCode, setPairingCode] = useState("");
+  const [sip, setSip] = useState("");
+  const [str, setStr] = useState("");
 
   const handleCheckVerification = async () => {
     if (!unverifiedProfile) return;
@@ -75,7 +77,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
 
     const payload = isLogin 
       ? { email, password } 
-      : { email, password, full_name: fullName, phone_number: phoneNumber, birth_date: birthDate, role, is_new_patient: isNewPatient, pairing_code: pairingCode };
+      : { email, password, full_name: fullName, phone_number: phoneNumber, birth_date: birthDate, role, is_new_patient: isNewPatient, pairing_code: pairingCode, sip, str };
 
     try {
       setLoading(true);
@@ -387,6 +389,37 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
                   />
                 </div>
               </div>
+              {/* SIP and STR for Doctor */}
+              {!isLogin && role === 'doctor' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}>
+                  <div className="mb-4">
+                    <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider font-sans">
+                      SIP (Surat Izin Praktik)
+                    </label>
+                    <input
+                      type="text"
+                      value={sip}
+                      onChange={(e) => setSip(e.target.value)}
+                      placeholder="Masukkan Nomor SIP"
+                      className="w-full bg-surface-sunken text-gray-200 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:border-emerald-500 focus:ring-emerald-500/30 font-sans"
+                      required={!isLogin && role === 'doctor'}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider font-sans">
+                      STR (Surat Tanda Registrasi)
+                    </label>
+                    <input
+                      type="text"
+                      value={str}
+                      onChange={(e) => setStr(e.target.value)}
+                      placeholder="Masukkan Nomor STR"
+                      className="w-full bg-surface-sunken text-gray-200 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:border-emerald-500 focus:ring-emerald-500/30 font-sans"
+                      required={!isLogin && role === 'doctor'}
+                    />
+                  </div>
+                </motion.div>
+              )}
             </motion.div>
           )}
 

@@ -73,13 +73,29 @@ export default function ScreeningFlow({ profile, onFinish, onRedAlert }: Screeni
       setLoading(true);
       setScreeningError("");
 
+      let locationData = null;
+      try {
+        if ("geolocation" in navigator) {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+          });
+          locationData = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          };
+        }
+      } catch (err) {
+        console.warn("Location not permitted or unavailable");
+      }
+
       const res = await fetch("/api/screenings/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patient_id: profile.user_id,
           test_type: currentModule,
-          answers: finalAnswers
+          answers: finalAnswers,
+          location: locationData
         })
       });
 

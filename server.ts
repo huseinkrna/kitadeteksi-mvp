@@ -134,7 +134,7 @@ app.use(express.json());
   // Auth: Register
   app.post("/api/auth/register", async (req, res) => {
     try {
-      const { email, password, role, full_name, phone_number, birth_date, is_new_patient, pairing_code } = req.body;
+      const { email, password, role, full_name, phone_number, birth_date, is_new_patient, pairing_code, sip, str } = req.body;
       
       if (!process.env.SUPABASE_URL || process.env.SUPABASE_URL === "https://dummy.supabase.co") {
         return res.status(500).json({ 
@@ -185,6 +185,8 @@ app.use(express.json());
         user_id, email, password, role, full_name,
         phone_number: phone_number || "",
         birth_date: birth_date || "",
+        sip: sip || "",
+        str: str || "",
         is_verified: false,
         assigned_at: new Date().toISOString()
       }).select().single();
@@ -192,12 +194,20 @@ app.use(express.json());
       if (error) return res.status(500).json({ error: error.message });
       
       // Create pairing if doctor assigned
-      if (role === "patient" && assignedDoctorId) {
-        await supabase.from("pairings").insert({
-          id: generateId(),
-          patient_id: newProfile.user_id,
-          doctor_id: assignedDoctorId,
-          status: "active"
+      if (role === "patient") {
+        if (assignedDoctorId) {
+          await supabase.from("pairings").insert({
+            id: generateId(),
+            patient_id: newProfile.user_id,
+            doctor_id: assignedDoctorId,
+            status: "active"
+          });
+        }
+        
+        await supabase.from("wallets").insert({
+          user_id: newProfile.user_id,
+          token_balance: 2,
+          updated_at: new Date().toISOString()
         });
       }
 
@@ -472,7 +482,12 @@ app.use(express.json());
           // WhatsApp Notification (Menit ke-0: Hanya ke Dokter Penanggung Jawab)
           const { data: doctorProfile } = await supabase.from("profiles").select("phone_number").eq("user_id", pairing.doctor_id).single();
           const { data: patientProfile } = await supabase.from("profiles").select("full_name").eq("user_id", patient_id).single();
-          const waMessage = `🚨 DARURAT (Pasien: ${patientProfile?.full_name || "Tanpa Nama"})\n\nEvaluasi AI: ${ai_analysis}\n\nAmbil alih: https://ruangtara-mvp.vercel.app/dashboard/triage/bypass/${ticketId}`;
+          
+          const getInitials = (name: string) => name.split(" ").map((n: string) => n[0]).join("").toUpperCase();
+          const initials = patientProfile?.full_name ? getInitials(patientProfile.full_name) : "Tanpa Nama";
+          const locationText = req.body.location ? `https://www.google.com/maps?q=${req.body.location.latitude},${req.body.location.longitude}` : "Tidak diketahui";
+          
+          const waMessage = `🚨 DARURAT (Pasien: ${initials})\n\nLokasi: ${locationText}\n\nEvaluasi AI: ${ai_analysis}\n\nAmbil alih: https://ruangtara-mvp.vercel.app/dashboard/triage/bypass/${ticketId}`;
           
           if (doctorProfile && doctorProfile.phone_number) {
              await sendWhatsAppFonnte(doctorProfile.phone_number, waMessage);
@@ -690,7 +705,11 @@ app.use(express.json());
              if (waitTime > THIRTY_MINUTES && ticket.status === "escalated") {
                 // Change ticket status to 'unassigned_emergency' and blast WA!
                 await supabase.from("tickets").update({ status: "unassigned_emergency" }).eq("id", ticket.id);
-                const waMessage = `🚨 DARURAT (Pasien: ${p.full_name})\n\nEvaluasi AI: Pasien kritis SLA terlewati, segera intervensi!\n\nAmbil alih: https://ruangtara-mvp.vercel.app/dashboard/triage/bypass/${ticket.id}`;
+                
+                const getInitials = (name: string) => name.split(" ").map((n: string) => n[0]).join("").toUpperCase();
+                const initials = p.full_name ? getInitials(p.full_name) : "Tanpa Nama";
+                
+                const waMessage = `🚨 DARURAT (Pasien: ${initials})\n\nEvaluasi AI: Pasien kritis SLA terlewati, segera intervensi!\n\nAmbil alih: https://ruangtara-mvp.vercel.app/dashboard/triage/bypass/${ticket.id}`;
                 console.log(waMessage);
                 
                 // Cari nomor HP dokter-dokter spesialis untuk diblast

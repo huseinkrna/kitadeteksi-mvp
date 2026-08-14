@@ -118,7 +118,11 @@ export default function JournalModal({ isOpen, onClose, onSubmit }: JournalModal
             {/* Content Field */}
             <div>
               <label className="block text-xs font-semibold text-gray-400 mb-2 font-sans">
-                APA YANG SEDANG ANDA PIKIRKAN / RASAKAN SAAT INI ?
+                {moodScale <= 2 ? "Sepertinya anda sedang di kondisi sangat buruk. Ada peristiwa apa hari ini ? Apa yang anda lakukan ?" :
+                 moodScale <= 4 ? "Sepertinya anda sedang di kondisi agak cemas/sedih. Ada peristiwa apa hari ini ? Apa yang anda lakukan ?" :
+                 moodScale <= 6 ? "Sepertinya anda sedang di kondisi biasa saja. Ada peristiwa apa hari ini ? Apa yang anda lakukan ?" :
+                 moodScale <= 8 ? "Sepertinya anda sedang di kondisi baik dan stabil. Ada peristiwa apa hari ini ? Apa yang anda lakukan ?" :
+                 "Sepertinya hari anda luar biasa baik. Ada peristiwa apa hari ini ? Apa yang anda lakukan ?"}
               </label>
               <textarea
                 value={content}

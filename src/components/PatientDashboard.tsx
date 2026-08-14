@@ -139,7 +139,7 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
       setTickets(ticketsData.tickets || []);
 
       // 5. Fetch wallet balance
-      const walletRes = await fetch(`/api/wallet?user_id=${profile.user_id}`);
+      const walletRes = await fetch(`/api/wallet?user_id=${profile.user_id}`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
       const walletData = await walletRes.json();
       setTokenBalance(walletData.wallet?.token_balance || 0);
     } catch (e) {
@@ -625,8 +625,8 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
                 <h2 className="font-display text-xl font-bold text-gray-100 tracking-tight">
                   Waktunya Penapisan Berkala!
                 </h2>
-                <p className="text-xs text-gray-400 font-sans">
-                  {getLatestScreeningText()} Evaluasi ini berguna untuk melihat dinamika mood Anda secara obyektif.
+                <p className="text-gray-400 mt-2 text-sm leading-relaxed">
+                  {getLatestScreeningText()} Evaluasi ini berguna untuk melihat dinamika mood Anda secara obyektif. silakan isi berkala setidaknya 2 minggu sekali
                 </p>
               </div>
               <button
