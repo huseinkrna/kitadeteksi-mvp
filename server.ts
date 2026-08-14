@@ -10,7 +10,7 @@ import webpush from "web-push";
 dotenv.config();
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "";
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || "";
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || "";
 const supabase = createClient(
   SUPABASE_URL || "https://dummy.supabase.co", 
   SUPABASE_KEY || "dummy"
@@ -89,17 +89,38 @@ async function analyzeScreeningWithGroq(scores: any, dominant_category: string) 
 }
 
 export const app = express();
+
+// 1. CSP, COOP, XFO Headers Middleware
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://* wss://* data: blob:;");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  next();
+});
+
+// 2. Middleware Anonimisasi PII
+app.use((req, res, next) => {
+  if (req.method !== "OPTIONS") {
+    const sanitizedBody = { ...req.body };
+    if (sanitizedBody.password) sanitizedBody.password = "***";
+    if (sanitizedBody.email) sanitizedBody.email = "***";
+    if (sanitizedBody.phone_number) sanitizedBody.phone_number = "***";
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`, Object.keys(sanitizedBody).length ? sanitizedBody : "");
+  }
+  next();
+});
 app.use(express.json());
 
   // Auth: Login
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { email, password, role } = req.body;
       
-      const devEmail = "hasanhusein@ruangtara.com";
-      const devPassword = "goyangduluser";
-      
-      if (email?.trim().toLowerCase() === devEmail && password?.trim() === devPassword) {
+      // Developer Login (Bypass Supabase for MVP Admin Dashboard)
+      if (role === "developer") {
+        const devEmail = process.env.ADMIN_EMAIL || "admin@ruangtara.com";
+        const devPassword = process.env.ADMIN_PASSWORD || "admin123";
+        if (email === devEmail && password === devPassword) {
         return res.json({
           profile: {
             user_id: "dev-001",
@@ -109,6 +130,7 @@ app.use(express.json());
             is_verified: true
           }
         });
+        }
       }
 
       if (!process.env.SUPABASE_URL || process.env.SUPABASE_URL === "https://dummy.supabase.co") {
@@ -885,11 +907,16 @@ app.use(express.json());
       return res.json({ success: true, message: "Transaksi sudah berhasil sebelumnya", transaction });
     }
 
-    const { data: updatedTx } = await supabase.from("transactions")
+    const { data: updatedTx, error: updateErr } = await supabase.from("transactions")
       .update({ status: "settled" })
       .eq("order_id", order_id)
+      .eq("status", "pending")
       .select()
       .single();
+
+    if (updateErr || !updatedTx) {
+      return res.status(400).json({ error: "Transaksi gagal atau sudah diproses" });
+    }
 
     let { data: wallet } = await supabase.from("wallets").select("*").eq("user_id", transaction.user_id).single();
     if (!wallet) {
@@ -937,9 +964,6 @@ app.use(express.json());
       });
     }
 
-    const newBalance = wallet.token_balance - 1;
-    await supabase.from("wallets").update({ token_balance: newBalance, updated_at: new Date().toISOString() }).eq("user_id", patient_id);
-
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 Jam
     const sessionId = `chat-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
@@ -948,12 +972,16 @@ app.use(express.json());
       id: sessionId,
       patient_id,
       doctor_id,
+      ticket_id: ticket_id || null,
+      is_active: true,
       started_at: now.toISOString(),
-      expires_at: expiresAt.toISOString(),
-      is_active: true
+      expires_at: expiresAt.toISOString()
     }).select().single();
 
-    if (sessionErr) return res.status(500).json({ error: sessionErr.message });
+    if (sessionErr) return res.status(500).json({ error: "Gagal membuat sesi konsultasi" });
+
+    const newBalance = wallet.token_balance - 1;
+    await supabase.from("wallets").update({ token_balance: newBalance, updated_at: new Date().toISOString() }).eq("user_id", patient_id);
 
     if (ticket_id) {
       await supabase.from("ticket_messages").insert({

@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { Sparkles, Activity, ShieldCheck, Mail, Lock, User, Phone, CheckCircle2, ShieldAlert, RefreshCw, LogOut, Eye, EyeOff, Terminal } from "lucide-react";
+import { Activity, ShieldCheck, Mail, Lock, User, Phone, CheckCircle2, ShieldAlert, RefreshCw, LogOut, Eye, EyeOff, Terminal } from "lucide-react";
 import { motion } from "motion/react";
 import { Profile } from "../types";
 
@@ -168,11 +168,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
         {/* Brand / Title */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-3">
-            <img 
-              src="/RUANGTARA.svg" 
-              className="h-20 rounded-xl shadow-lg border border-white/5 transition-transform hover:scale-105" 
-              alt="RUANGTARA Logo" 
-            />
+            <img src="/RUANGTARA.svg" alt="RUANGTARA" className="h-20 w-20 relative z-10 rounded-xl shadow-lg border border-white/5 transition-transform hover:scale-105" width="80" height="80" />
           </div>
           <p className="text-xs text-nebula font-mono uppercase tracking-widest mt-2">
             Democratizing Mental Healthcare Through AI Co-Pilot

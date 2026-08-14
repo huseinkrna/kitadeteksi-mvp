@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import Navbar from "./components/Navbar";
-import AuthPage from "./components/AuthPage";
-import PatientPairingView from "./components/PatientPairingView";
-import PatientDashboard from "./components/PatientDashboard";
-import PatientTicketView from "./components/PatientTicketView";
-import ScreeningFlow from "./components/ScreeningFlow";
-import DoctorDashboard from "./components/DoctorDashboard";
-import DoctorTicketView from "./components/DoctorTicketView";
-import RedAlertModal from "./components/RedAlertModal";
-import DeveloperDashboard from "./components/DeveloperDashboard";
 import PwaPrompt from "./components/PwaPrompt";
 import { Profile } from "./types";
+
+const AuthPage = lazy(() => import("./components/AuthPage"));
+const PatientPairingView = lazy(() => import("./components/PatientPairingView"));
+const PatientDashboard = lazy(() => import("./components/PatientDashboard"));
+const PatientTicketView = lazy(() => import("./components/PatientTicketView"));
+const ScreeningFlow = lazy(() => import("./components/ScreeningFlow"));
+const DoctorDashboard = lazy(() => import("./components/DoctorDashboard"));
+const DoctorTicketView = lazy(() => import("./components/DoctorTicketView"));
+const RedAlertModal = lazy(() => import("./components/RedAlertModal"));
+const DeveloperDashboard = lazy(() => import("./components/DeveloperDashboard"));
 
 export default function App() {
   const [user, setUser] = useState<Profile | null>(null);
@@ -105,7 +106,11 @@ export default function App() {
 
   // 1. If not authenticated, show Auth Page
   if (!user) {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-deepspace text-gray-400 font-sans"><p>Memuat...</p></div>}>
+        <AuthPage onAuthSuccess={handleAuthSuccess} />
+      </Suspense>
+    );
   }
 
   // 2. If patient and not yet paired, force Onboarding Pairing Screen
@@ -118,11 +123,13 @@ export default function App() {
       );
     }
     return (
-      <PatientPairingView
-        profile={user}
-        onPairingSuccess={() => setPaired(true)}
-        onBack={handleLogout}
-      />
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-deepspace text-gray-400 font-sans"><p>Memuat...</p></div>}>
+        <PatientPairingView
+          profile={user}
+          onPairingSuccess={() => setPaired(true)}
+          onBack={handleLogout}
+        />
+      </Suspense>
     );
   }
 
@@ -166,60 +173,62 @@ export default function App() {
 
       {/* Main Routing Views */}
       <div className="flex-1">
-        {user.role === "patient" ? (
-          /* PATIENT PAGES */
-          activePage === "screening" ? (
-            <ScreeningFlow
-              profile={user}
-              onFinish={() => {
-                setActivePage("dashboard");
-              }}
-              onRedAlert={() => {
-                setIsCritical(true);
-                setActivePage("dashboard");
-              }}
-            />
-          ) : activePage === "ticket" && selectedTicketId ? (
-            <PatientTicketView
-              ticketId={selectedTicketId}
-              patientId={user.user_id}
-              doctorName={doctorName}
-              onBack={() => setActivePage("dashboard")}
-            />
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-deepspace text-gray-400 font-sans"><p>Memuat...</p></div>}>
+          {user.role === "patient" ? (
+            /* PATIENT PAGES */
+            activePage === "screening" ? (
+              <ScreeningFlow
+                profile={user}
+                onFinish={() => {
+                  setActivePage("dashboard");
+                }}
+                onRedAlert={() => {
+                  setIsCritical(true);
+                  setActivePage("dashboard");
+                }}
+              />
+            ) : activePage === "ticket" && selectedTicketId ? (
+              <PatientTicketView
+                ticketId={selectedTicketId}
+                patientId={user.user_id}
+                doctorName={doctorName}
+                onBack={() => setActivePage("dashboard")}
+              />
+            ) : (
+              <PatientDashboard
+                profile={user}
+                onStartScreening={() => setActivePage("screening")}
+                onViewTicket={(id) => {
+                  setSelectedTicketId(id);
+                  setActivePage("ticket");
+                }}
+                onRedAlert={() => setIsCritical(true)}
+                onProfileUpdate={handleAuthSuccess}
+              />
+            )
+          ) : user.role === "doctor" ? (
+            /* DOCTOR PAGES */
+            activePage === "ticket" && selectedTicketId ? (
+              <DoctorTicketView
+                ticketId={selectedTicketId}
+                doctorId={user.user_id}
+                onBack={() => setActivePage("dashboard")}
+              />
+            ) : (
+              <DoctorDashboard
+                profile={user}
+                onViewTicket={(id) => {
+                  setSelectedTicketId(id);
+                  setActivePage("ticket");
+                }}
+                onProfileUpdate={handleAuthSuccess}
+              />
+            )
           ) : (
-            <PatientDashboard
-              profile={user}
-              onStartScreening={() => setActivePage("screening")}
-              onViewTicket={(id) => {
-                setSelectedTicketId(id);
-                setActivePage("ticket");
-              }}
-              onRedAlert={() => setIsCritical(true)}
-              onProfileUpdate={handleAuthSuccess}
-            />
-          )
-        ) : user.role === "doctor" ? (
-          /* DOCTOR PAGES */
-          activePage === "ticket" && selectedTicketId ? (
-            <DoctorTicketView
-              ticketId={selectedTicketId}
-              doctorId={user.user_id}
-              onBack={() => setActivePage("dashboard")}
-            />
-          ) : (
-            <DoctorDashboard
-              profile={user}
-              onViewTicket={(id) => {
-                setSelectedTicketId(id);
-                setActivePage("ticket");
-              }}
-              onProfileUpdate={handleAuthSuccess}
-            />
-          )
-        ) : (
-          /* DEVELOPER PAGES */
-          <DeveloperDashboard profile={user} />
-        )}
+            /* DEVELOPER PAGES */
+            <DeveloperDashboard profile={user} />
+          )}
+        </Suspense>
       </div>
 
       {/* TRIAGE BYPASS MODAL */}
@@ -277,10 +286,12 @@ export default function App() {
       )}
 
       {/* GLOBAL RED ALERT CRITICAL LOCKING MODAL */}
-      <RedAlertModal 
-        isOpen={isCritical} 
-        onClose={() => setIsCritical(false)} 
-      />
+      <Suspense fallback={null}>
+        <RedAlertModal 
+          isOpen={isCritical} 
+          onClose={() => setIsCritical(false)} 
+        />
+      </Suspense>
       
       {/* PWA INSTALL PROMPT */}
       <PwaPrompt />

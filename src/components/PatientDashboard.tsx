@@ -626,7 +626,7 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
                   Waktunya Penapisan Berkala!
                 </h2>
                 <p className="text-gray-400 mt-2 text-sm leading-relaxed">
-                  {getLatestScreeningText()} Evaluasi ini berguna untuk melihat dinamika mood Anda secara obyektif. silakan isi berkala setidaknya 2 minggu sekali
+                  {getLatestScreeningText()} Evaluasi ini berguna untuk melihat dinamika mood Anda secara obyektif. Silakan isi berkala setidaknya 2 minggu sekali.
                 </p>
               </div>
               <button

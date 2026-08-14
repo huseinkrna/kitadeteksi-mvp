@@ -1,0 +1,18 @@
+RLS diaktifkan, tetapi policy USING (true) WITH CHECK (true) membuat tabel wallets/transactions/chat_sessions terbuka untuk read/write oleh siapa pun (praktis menonaktifkan RLS). Dengan backend memakai SUPABASE_ANON_KEY, ini berisiko besar terhadap kebocoran saldo/token dan manipulasi transaksi; perlu policy yang membatasi per-user/role atau ubah backend memakai service key + kebijakan yang ketat.
+
+Kredensial developer hardcoded di source (email/password) mudah bocor lewat repo/logs dan sulit diputar. Pindahkan ke environment variables dan nonaktifkan jika env belum diset.
+
+Endpoint wallet ini menerima user_id dari query tanpa autentikasi/otorisasi, sehingga siapa pun bisa membaca saldo token user lain (dan memicu auto-create wallet). Untuk data monetisasi, sebaiknya identitas user diambil dari sesi/JWT dan diverifikasi di server, bukan dari query param.
+
+Flow simulate-success belum idempotent terhadap request paralel: dua request bisa sama-sama melihat status masih pending, lalu keduanya meng-update transaksi dan menambah token ke wallet dua kali. Pertimbangkan update transaksi dengan kondisi eq('status','pending') dan hanya kredit wallet bila update berhasil (atau lakukan semuanya atomik di DB/RPC).
+
+Token dipotong dari wallet sebelum insert chat_sessions. Jika insert session gagal, user sudah kehilangan 1 token tetapi tidak mendapat sesi. Ini sebaiknya dibuat atomik (transaction/RPC) atau minimal lakukan insert session dulu lalu potong token setelah sukses dengan rollback/kompensasi jika update wallet gagal.
+
+Sparkles di-import tetapi tidak digunakan; ini bisa memicu lint/TS error dan menambah noise di import list.
+
+Teks bantuan ini punya kapitalisasi/kalimat yang kurang rapi ("silakan" setelah titik) dan sebaiknya dipisahkan/diakhiri tanda baca agar lebih mudah dibaca.
+Kalimat prompt jurnal menggunakan "anda" huruf kecil dan ada spasi sebelum tanda tanya ("hari ini ?"). Ini terlihat seperti typo di UI; sebaiknya konsisten pakai "Anda" dan tanpa spasi sebelum '?'.
+
+Fallback doctor_id || patientId bisa menghasilkan request status sesi dengan doctor_id yang salah (patientId) bila ticket.doctor_id kosong/undefined, sehingga status sesi jadi menyesatkan. Lebih aman hanya fetch status jika doctor_id ada.
+
+untuk kemanan data bantu gw untuk Implementasi (1) CSP, COOP, XFO Headers, (2) Middleware Anonimisasi PII, (3) Enkripsi Data Sensitif, (4) Code Splitting & Lazy Loading, (5) Tambahkan width/height pada gambar untuk Mencegah CLS (pergeseran layout) saat loading, (6) Logging & Error Tracking : Setup Sentry atau logging bawaan Vercel untuk memantau error saat uji coba. Penting untuk debugging real-time.
