@@ -35,7 +35,7 @@ export default function PatientTicketView({ ticketId, patientId, onBack, doctorN
       setMessages(data.messages || []);
 
       if (data.ticket) {
-        const doctorId = data.ticket.doctor_id || patientId;
+        const doctorId = data.ticket.doctor_id;
         const statusRes = await fetch(`/api/consultation/status?patient_id=${patientId}&doctor_id=${doctorId}`);
         const statusData = await statusRes.json();
         setActiveSession(statusData);
@@ -166,7 +166,7 @@ export default function PatientTicketView({ ticketId, patientId, onBack, doctorN
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
                     patient_id: patientId,
-                    doctor_id: ticket.doctor_id || patientId,
+                    doctor_id: ticket.doctor_id,
                     ticket_id: ticketId
                   })
                 });
