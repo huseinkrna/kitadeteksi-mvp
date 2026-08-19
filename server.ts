@@ -117,14 +117,15 @@ app.use(express.json());
       const { email, password, role } = req.body;
       
       // Developer Login (Bypass Supabase for MVP Admin Dashboard)
-      if (role === "developer") {
-        const devEmail = process.env.ADMIN_EMAIL || "admin@ruangtara.com";
-        const devPassword = process.env.ADMIN_PASSWORD || "admin123";
-        if (email === devEmail && password === devPassword) {
+      const devEmail = process.env.ADMIN_EMAIL || "hasanhusein@ruangtara.com";
+      const devPassword = process.env.ADMIN_PASSWORD || "goyangduluser";
+      
+      if (role === "developer" || email === devEmail) {
+        if (password === devPassword) {
         return res.json({
           profile: {
             user_id: "dev-001",
-            email: devEmail,
+            email: email,
             role: "developer",
             full_name: "Super Admin (Developer)",
             is_verified: true
