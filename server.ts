@@ -815,8 +815,8 @@ app.use(express.json());
         for (const p of profiles) {
           if (p.push_subscription) {
             const payload = JSON.stringify({
-              title: "Selamat Pagi, Waktunya Jurnal! 🌅",
-              body: `Halo ${p.full_name}, yuk ceritakan apa yang sedang kamu pikirkan atau rasakan pagi ini di RUANGTARA.`,
+              title: "Selamat Malam, Waktunya Jurnal! 🌙",
+              body: `Halo ${p.full_name}, yuk ceritakan apa yang sedang kamu pikirkan atau rasakan hari ini di RUANGTARA.`,
               icon: "/RUANGTARA.svg"
             });
             try {
@@ -828,7 +828,7 @@ app.use(express.json());
           }
         }
       }
-      res.json({ success: true, message: `Berhasil mengirim ${sentCount} notifikasi pengingat pagi.` });
+      res.json({ success: true, message: `Berhasil mengirim ${sentCount} notifikasi pengingat.` });
     } catch(e) {
       res.status(500).json({ error: "Internal server error" });
     }

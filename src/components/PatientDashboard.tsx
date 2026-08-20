@@ -91,6 +91,64 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
     }
   };
 
+  const subscribeToPushNotifications = async () => {
+    try {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.warn("Browser tidak mendukung push notification.");
+        return;
+      }
+      
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        alert("Izin notifikasi ditolak. Anda tidak akan menerima pengingat jurnal.");
+        return;
+      }
+
+      const registration = await navigator.serviceWorker.ready;
+      let subscription = await registration.pushManager.getSubscription();
+      
+      if (!subscription) {
+        const publicVapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+        if (!publicVapidKey) {
+          console.error("VITE_VAPID_PUBLIC_KEY tidak ditemukan di env");
+          return;
+        }
+
+        const urlBase64ToUint8Array = (base64String: string) => {
+          const padding = '='.repeat((4 - base64String.length % 4) % 4);
+          const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+          const rawData = window.atob(base64);
+          const outputArray = new Uint8Array(rawData.length);
+          for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+          }
+          return outputArray;
+        };
+
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+        });
+      }
+
+      const res = await fetch("/api/profile/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: profile.user_id,
+          push_subscription: subscription
+        })
+      });
+      if (res.ok) {
+        setSuccessMsg("Notifikasi jurnal harian diaktifkan!");
+        setTimeout(() => setSuccessMsg(""), 4000);
+      }
+    } catch (error) {
+      console.error("Gagal subscribe push notification", error);
+      alert("Gagal mengaktifkan notifikasi.");
+    }
+  };
+
   const handleOpenChatRoom = async () => {
     if (!doctor) {
       alert("Anda harus ditautkan dengan dokter terlebih dahulu untuk membuka konsultasi.");
@@ -985,6 +1043,17 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
               <div className="pt-4 border-t border-white/5">
                 <span className="text-[10px] text-gray-500 uppercase block">Status Akun Pasien</span>
                 <span className="px-2.5 py-0.5 rounded bg-green-500/20 text-green-300 border border-green-500/30 text-[9px] font-bold uppercase font-mono mt-1 inline-block">TERVERIFIKASI & AKTIF</span>
+              </div>
+
+              <div className="pt-4 border-t border-white/5">
+                <span className="text-[10px] text-gray-500 uppercase block mb-2">Notifikasi Pengingat Jurnal</span>
+                <button
+                  type="button"
+                  onClick={subscribeToPushNotifications}
+                  className="w-full py-2.5 bg-yellow-500 text-deepspace font-bold rounded-full text-xs hover:bg-yellow-400 transition-all cursor-pointer font-sans"
+                >
+                  Aktifkan Notifikasi Harian (19:00 WIB)
+                </button>
               </div>
             </form>
           </div>
