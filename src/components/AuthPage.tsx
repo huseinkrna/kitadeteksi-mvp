@@ -171,7 +171,7 @@ export default function AuthPage({ onAuthSuccess }: AuthPageProps) {
             <img src="/RUANGTARA.svg" alt="RUANGTARA" className="h-20 w-20 relative z-10 rounded-xl shadow-lg border border-white/5 transition-transform hover:scale-105" width="80" height="80" />
           </div>
           <p className="text-xs text-nebula font-mono uppercase tracking-widest mt-2">
-            Democratizing Mental Healthcare Through AI Co-Pilot
+            Optimizing Mental Healthcare Through AI Integrated System
           </p>
         </div>
 

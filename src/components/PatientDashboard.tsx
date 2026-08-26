@@ -446,7 +446,7 @@ export default function PatientDashboard({ profile, onStartScreening, onViewTick
           <div class="header">
             <img src="/RUANGTARA.svg" style="height: 60px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" alt="RUANGTARA Logo" />
             <div class="brand">RUMAH SAKIT MITRA RUANGTARA</div>
-            <div class="subtitle">Democratizing Mental Healthcare Through AI Co-Pilot</div>
+            <div class="subtitle">Optimizing Mental Healthcare Through AI Integrated System</div>
             <div style="font-size: 12px; margin-top: 10px; color: #334155; font-weight: 500;">LAPORAN RESUME RESMI PENUNJANG KLINIS</div>
           </div>
 
