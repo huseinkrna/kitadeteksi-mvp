@@ -1,4 +1,4 @@
-# RUANGTARA - Democratizing Mental Healthcare Through AI Co-Pilot
+# RUANGTARA - Optimizing Mental Healthcare Through AI Integrated System
 
 RUANGTARA adalah platform kesehatan mental terintegrasi yang menghubungkan pasien dengan dokter pengawas. Platform ini menyediakan fitur penapisan psikologis (DASS-21, PHQ-9, GAD-7) dan jurnal harian yang didukung oleh analisis sentimen berbasis AI (Groq & Gemini).
 

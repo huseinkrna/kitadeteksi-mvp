@@ -13,7 +13,7 @@ export default defineConfig(() => {
         registerType: 'autoUpdate',
         includeAssets: ['RUANGTARA.svg', 'logo.svg'],
         manifest: {
-          name: 'RUANGTARA - Democratizing Mental Healthcare Through AI Co-Pilot',
+          name: 'RUANGTARA - Optimizing Mental Healthcare Through AI Integrated System',
           short_name: 'RUANGTARA',
           description: 'Aplikasi Skrining & Pemantauan Kesehatan Mental',
           theme_color: '#0f172a',
