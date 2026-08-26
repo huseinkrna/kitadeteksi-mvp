@@ -116,7 +116,7 @@ ${responseText.trim()}`;
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="relative w-full max-w-2xl border border-white/10 rounded-2xl bg-surface-card p-4 sm:p-6 shadow-2xl glow-nebula-md my-8"
+          className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/10 rounded-2xl bg-surface-card p-4 sm:p-6 shadow-2xl glow-nebula-md my-8"
         >
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
@@ -150,8 +150,7 @@ ${responseText.trim()}`;
                   value={eventText}
                   onChange={(e) => setEventText(e.target.value)}
                   placeholder="Contoh: Dosen menolak judul skripsi saya."
-                  rows={2}
-                  className="w-full text-gray-800 border-none focus:ring-0 resize-none text-sm p-0 mb-4 bg-transparent outline-none"
+                  className="w-full text-gray-800 border-none focus:ring-0 resize-none text-sm p-0 mb-4 bg-transparent outline-none h-32 overflow-y-auto"
                 />
                 <div className="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Kategori Masalah (Pilih Maks 3)</div>
                 <div className="flex flex-wrap gap-2">
@@ -184,8 +183,7 @@ ${responseText.trim()}`;
                   value={thoughtText}
                   onChange={(e) => setThoughtText(e.target.value)}
                   placeholder="Contoh: Saya memang bodoh, saya pasti akan gagal."
-                  rows={2}
-                  className="w-full text-red-900 border-none focus:ring-0 resize-none text-sm p-0 bg-transparent outline-none placeholder-red-300"
+                  className="w-full text-red-900 border-none focus:ring-0 resize-none text-sm p-0 bg-transparent outline-none placeholder-red-300 h-32 overflow-y-auto"
                 />
               </div>
             </div>
@@ -249,8 +247,7 @@ ${responseText.trim()}`;
                   value={responseText}
                   onChange={(e) => setResponseText(e.target.value)}
                   placeholder="Contoh: Penolakan judul itu hal biasa. Ini bukan bukti saya bodoh. Saya masih punya waktu revisi."
-                  rows={2}
-                  className="w-full text-emerald-900 border-none focus:ring-0 resize-none text-sm p-0 bg-transparent outline-none placeholder-emerald-300"
+                  className="w-full text-emerald-900 border-none focus:ring-0 resize-none text-sm p-0 bg-transparent outline-none placeholder-emerald-300 h-32 overflow-y-auto"
                 />
               </div>
             </div>
