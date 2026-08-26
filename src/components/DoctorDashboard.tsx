@@ -46,7 +46,7 @@ export default function DoctorDashboard({ profile, onViewTicket, onProfileUpdate
   const [doctorPhone, setDoctorPhone] = useState(profile.phone_number);
   const [doctorBirthDate, setDoctorBirthDate] = useState(profile.birth_date || "");
   const [doctorPassword, setDoctorPassword] = useState("");
-  const [doctorSpecialization, setDoctorSpecialization] = useState(profile.specialization || "");
+  const [doctorSpecialization, setDoctorSpecialization] = useState(profile.specialization || "Dokter");
   const [savingProfile, setSavingProfile] = useState(false);
 
   // 15 seconds emergency countdown visual alert
@@ -1298,15 +1298,17 @@ export default function DoctorDashboard({ profile, onViewTicket, onProfileUpdate
 
               {/* Specialization */}
               <div>
-                <label className="block text-slate-500 font-bold mb-1.5 uppercase tracking-wider">Spesialisasi Klinis / Jiwa</label>
-                <input
-                  type="text"
+                <label className="block text-slate-500 font-bold mb-1.5 uppercase tracking-wider">Spesialisasi</label>
+                <select
                   value={doctorSpecialization}
                   onChange={(e) => setDoctorSpecialization(e.target.value)}
-                  placeholder="Contoh: Psikiatri Adiksi, Psikiatri Forensik, Spesialis Jiwa Anak"
                   className="w-full bg-slate-50 text-slate-800 border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500 font-sans text-xs"
                   required
-                />
+                >
+                  <option value="Dokter">Dokter</option>
+                  <option value="Psikiatri">Psikiatri</option>
+                  <option value="Psikolog">Psikolog</option>
+                </select>
               </div>
 
               {/* Pairing code display */}

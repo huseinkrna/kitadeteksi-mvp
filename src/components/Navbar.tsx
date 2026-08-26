@@ -33,7 +33,7 @@ export default function Navbar({ profile, onLogout }: NavbarProps) {
               {profile.full_name}
             </span>
             <span className="text-[9px] text-gray-400 font-mono block leading-none uppercase">
-              {profile.role === "doctor" ? "DOKTER SP.KJ" : profile.role === "developer" ? "SUPER ADMIN" : "PASIEN"}
+              {profile.role === "doctor" ? (profile.specialization?.toUpperCase() || "DOKTER") : profile.role === "developer" ? "SUPER ADMIN" : "PASIEN"}
             </span>
           </div>
         </div>
